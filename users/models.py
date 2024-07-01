@@ -101,6 +101,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     last_login = models.DateTimeField(blank=True, null=True)
     date_joined = models.DateTimeField(auto_now_add=True)
     address = models.ForeignKey(Addresses, models.DO_NOTHING, blank=True, null=True)
+    otp_verified = models.BooleanField(blank=True, null=True)
 
     objects = CustomUserManager()
 
@@ -116,11 +117,13 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.user_id
 
 
-class OneTimePassword(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+class Otps(models.Model):
+    user = models.ForeignKey(User, models.DO_NOTHING, blank=True, null=True, unique=True)
     code = models.CharField(max_length=6, unique=True)
 
     class Meta:
-        db_table = 'OneTimePasswords'
+        db_table = 'otps'
     def __str__(self):
         return f"{self.user.first_name}--passcode"
+
+

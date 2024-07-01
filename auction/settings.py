@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
-    'bidcraft',
     'users'
 ]
 
@@ -99,7 +98,7 @@ EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
 EMAIL_HOST_USER = '1183297cd80e67'
 EMAIL_HOST_PASSWORD = '5e9c5d9add4fcb'
 EMAIL_PORT = '2525'
-EMAIL_USE_TLS=True
+EMAIL_USE_TLS = True
 
 
 CORS_ALLOWED_ORIGINS = [

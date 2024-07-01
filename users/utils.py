@@ -3,27 +3,18 @@ import random
 from django.conf import settings
 from django.core.mail import EmailMessage
 
-from users.models import User, OneTimePassword
+from users.models import User, Otps
 
 
-def generate_otp():
-    otp=""
-    for i in range(6):
-        otp += str(random.randint(1,9))
-    return otp
-
-def send_code_to_user(email):
+def send_generated_otp_to_email(email, request):
     subject = "Verifica tu correo electronico"
-    otp_code = generate_otp()
-    print(otp_code)
-
+    otp = random.randint(1000, 9999)
+    current_site = "test"
     user = User.objects.get(email=email)
-    current_site = "myAuth.com"
-    email_body = f"Hola {user.first_name} gracias por registrate en {current_site} porfavor verifica tu correo electronico" \
-                 f"con tu \n codigo unico {otp_code}"
-    from_email = settings.DEFAULT_FROM_EMAIL
+    email_body=f"Hi {user.first_name} thanks for signing up on {current_site} please verify your email with the \n one time passcode {otp}"
+    from_email = settings.EMAIL_HOST
 
-    OneTimePassword.objects.create(user=user, code=otp_code)
-
-    d_email = EmailMessage(subject=subject,body=email_body,from_email=from_email,to=email)
-    d_email.send(fail_silently=True)
+    otp_obj = Otps.objects.create(user=user, code=otp)
+    #send the email
+    d_email = EmailMessage(subject=subject, body=email_body, from_email=from_email, to=[user.email])
+    d_email.send()
