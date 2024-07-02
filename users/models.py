@@ -1,17 +1,36 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 from django.db import models
 
+
 class CustomUserManager(BaseUserManager):
-    def create_user(self, dni, email, username=None, password=None, **extra_fields):
+
+    def email_validator(self, email):
+        try:
+            validate_email(email)
+        except ValidationError:
+            raise ValueError("Ingresa un correo electronico valido")
+
+    def create_user(self, user_id, email, first_name, last_name, username, password, **extra_fields):
         if not email:
             raise ValueError('Se necesita un correo electronico')
         email = self.normalize_email(email)
-        user = self.model(dni=dni, email=email, username=username, **extra_fields)
+        self.email_validator(email)
+
+        if not first_name:
+            raise ValueError('Se necesita un primer nombre')
+        if not last_name:
+            raise ValueError('Se necesita un apellido')
+
+        user = self.model(user_id=user_id, email=email, username=username, first_name=first_name,
+                          last_name=last_name, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
+
         return user
 
-    def create_superuser(self, dni, email, username=None, password=None, **extra_fields):
+    def create_superuser(self, user_id, email, first_name, last_name, username=None, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
 
@@ -20,10 +39,55 @@ class CustomUserManager(BaseUserManager):
         if extra_fields.get('is_superuser') is not True:
             raise ValueError('Superuser must have is_superuser=True.')
 
-        return self.create_user(dni, email, username, password, **extra_fields)
+        user = self.create_user(
+            user_id, email, first_name, last_name, username, password, **extra_fields
+        )
+        user.save(using=self._db)
 
-class users(AbstractBaseUser, PermissionsMixin):
-    dni = models.CharField(max_length=20, unique=True, primary_key=True)
+        return user
+
+
+
+class Countries(models.Model):
+    country_id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=80)
+
+    class Meta:
+        managed = False
+        db_table = 'countries'
+
+
+class Departments(models.Model):
+    department_id = models.AutoField(primary_key=True)
+    name = models.CharField(unique=True, max_length=80)
+    country = models.ForeignKey(Countries, models.DO_NOTHING)
+
+    class Meta:
+        managed = False
+        db_table = 'departments'
+
+class Cities(models.Model):
+    city_id = models.AutoField(primary_key=True)
+    name = models.CharField(unique=True, max_length=80)
+    department = models.ForeignKey('Departments', models.DO_NOTHING)
+
+    class Meta:
+        managed = False
+        db_table = 'cities'
+        unique_together = (('name', 'department'),)
+
+class Addresses(models.Model):
+    address_id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=200)
+    city = models.ForeignKey('Cities', models.DO_NOTHING)
+
+    class Meta:
+        managed = False
+        db_table = 'addresses'
+
+
+class User(AbstractBaseUser, PermissionsMixin):
+    user_id = models.CharField(max_length=20, unique=True, primary_key=True)
     first_name = models.CharField(max_length=50)
     second_name = models.CharField(max_length=50, blank=True, null=True)
     last_name = models.CharField(max_length=50)
@@ -36,15 +100,30 @@ class users(AbstractBaseUser, PermissionsMixin):
     is_superuser = models.BooleanField(default=False)
     last_login = models.DateTimeField(blank=True, null=True)
     date_joined = models.DateTimeField(auto_now_add=True)
+    address = models.ForeignKey(Addresses, models.DO_NOTHING, blank=True, null=True)
+    otp_verified = models.BooleanField(blank=True, null=True)
 
     objects = CustomUserManager()
 
-    USERNAME_FIELD = 'dni'
+    USERNAME_FIELD = 'user_id'
     EMAIL_FIELD = 'email'
-    REQUIRED_FIELDS = ['email']
+    REQUIRED_FIELDS = ['email', 'first_name', 'last_name', 'username']
 
     class Meta:
         db_table = 'users'
+        managed = False
 
     def __str__(self):
-        return self.dni
+        return self.user_id
+
+
+class Otps(models.Model):
+    user = models.ForeignKey(User, models.DO_NOTHING, blank=True, null=True, unique=True)
+    code = models.CharField(max_length=6, unique=True)
+
+    class Meta:
+        db_table = 'otps'
+    def __str__(self):
+        return f"{self.user.first_name}--passcode"
+
+
