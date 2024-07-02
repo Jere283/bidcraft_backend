@@ -6,7 +6,7 @@ from django.contrib.auth import authenticate
 from rest_framework.generics import GenericAPIView
 
 from .models import Otps
-from .serializers import UserRegisterSerializer
+from .serializers import UserRegisterSerializer, LoginSerializer
 from .utils import send_generated_otp_to_email
 
 
@@ -47,3 +47,11 @@ class VerifyUserEmail(GenericAPIView):
             return Response({
                 'message': "El codigo no existe"
             }, status.HTTP_404_NOT_FOUND)
+
+
+class LoginUserView(GenericAPIView):
+    serializer_class = LoginSerializer
+
+    def post(self, request):
+        serializer=self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)

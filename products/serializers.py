@@ -1,16 +1,15 @@
 from rest_framework import serializers
 from .models import Category, Product
-from users.models import users
+from users.models import User
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ['category_id', 'category_name']
-        read_only_fields = ('created_at', ) # Define que el campo created_at del modelo Category es de solo lectura y no se incluirá en los datos de entrada para la actualización.
 
 class ProductSerializer(serializers.ModelSerializer):
     seller = serializers.SlugRelatedField(
-        queryset=users.objects.all(),
+        queryset=User.objects.all(),
         slug_field='dni'
     )
     category = serializers.SlugRelatedField( #Indica que este campo también se representará como un campo de relación mediante un "slug".

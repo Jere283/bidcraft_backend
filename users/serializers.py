@@ -33,3 +33,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             address=validated_data.get('address_id', None),
         )
         return user
+
+
+class LoginSerializer(serializers.ModelSerializer):
+    pass
