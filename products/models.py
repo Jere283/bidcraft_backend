@@ -12,13 +12,12 @@ class Category(models.Model):
         managed = False
         db_table = 'categories'
 
-
     def __str__(self): #para devolver el nombre de la categoría cuando se convierta el objeto a una cadena.
         return self.category_name
 
 class Product(models.Model):
     product_id = models.AutoField(primary_key=True)
-    seller_id = models.CharField(max_length=14)
+    seller = models.ForeignKey(User, models.DO_NOTHING)
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
     starting_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
@@ -32,4 +31,16 @@ class Product(models.Model):
     class Meta:
         managed = False
         db_table = 'products'
+
+class Favorites(models.Model):
+    favorite_id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, models.DO_NOTHING)
+    product = models.ForeignKey(Product, models.DO_NOTHING)
+    date_added = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'favorites'
+
+
 
