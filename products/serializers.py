@@ -14,7 +14,7 @@ class ProductSerializer(serializers.ModelSerializer):
     )
     category = serializers.SlugRelatedField(
         queryset=Category.objects.all(),
-        slug_field='category_name',
+        slug_field='category_id',
         allow_null=True,
         required=False
     )
@@ -43,7 +43,7 @@ class FavoritesSerializer(serializers.ModelSerializer):
     )
     product = serializers.SlugRelatedField(
         queryset=Product.objects.all(),
-        slug_field='name',
+        slug_field='product_id',
         allow_null=True,
         required=False
     )
