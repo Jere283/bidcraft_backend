@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.db import models
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 class CustomUserManager(BaseUserManager):
@@ -105,16 +106,30 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     objects = CustomUserManager()
 
-    USERNAME_FIELD = 'user_id'
-    EMAIL_FIELD = 'email'
-    REQUIRED_FIELDS = ['email', 'first_name', 'last_name', 'username']
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['user_id', 'first_name', 'last_name', 'username']
 
     class Meta:
         db_table = 'users'
         managed = False
 
     def __str__(self):
+        return self.id
+
+    @property
+    def get_full_name(self):
+        return f"{self.first_name} {self.last_name}"
+
+    @property
+    def id(self):
         return self.user_id
+
+    def tokens(self):
+        refresh = RefreshToken.for_user(self)
+        return {
+            'refresh': str(refresh),
+            'access': str(refresh.access_token)
+        }
 
 
 class Otps(models.Model):
