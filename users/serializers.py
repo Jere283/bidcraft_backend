@@ -1,11 +1,14 @@
 from rest_framework import serializers
+from rest_framework.exceptions import AuthenticationFailed
+
 from .models import User, Addresses
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, authenticate
+
 
 class UserRegisterSerializer(serializers.ModelSerializer):
-
     password = serializers.CharField(max_length=68, min_length=8, write_only=True)
     password_confirm = serializers.CharField(max_length=68, min_length=8, write_only=True)
+
     class Meta:
         model = User
         fields = ('user_id', 'email', 'username', 'first_name', 'second_name', 'last_name', 'last_name2', 'phone_number'
@@ -18,8 +21,8 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         if password != password_confirm:
             raise serializers.ValidationError("Las contaseñas no coinciden.")
         return attrs
-    def create(self, validated_data):
 
+    def create(self, validated_data):
         user = User.objects.create_user(
             user_id=validated_data['user_id'],
             email=validated_data['email'],
@@ -36,4 +39,30 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
 
 class LoginSerializer(serializers.ModelSerializer):
-    pass
+    email = serializers.EmailField(max_length=255, min_length=6)
+    password = serializers.CharField(max_length=68, write_only=True)
+    full_name = serializers.CharField(max_length=255, read_only=True)
+    access_token = serializers.CharField(max_length=255, read_only=True)
+    refresh_token = serializers.CharField(max_length=255, read_only=True)
+
+    class Meta:
+        model = User
+        fields = ['email', 'password', 'full_name', 'access_token', 'refresh_token']
+
+    def validate(self, attrs):
+        email = attrs.get('email')
+        password = attrs.get('password')
+        request = self.context.get('request')
+        user = authenticate(request, email=email, password=password)
+        if not user:
+            raise AuthenticationFailed("Las credenciales son invalidas")
+        if not user.otp_verified:
+            raise AuthenticationFailed("El correo no esta verificado")
+        user_tokens = user.tokens()
+
+        return {
+            'email': user.email,
+            'full_name': user.get_full_name,
+            'access_token': str(user_tokens.get('access')),
+            'refresh_token': str(user_tokens.get('refresh'))
+        }
