@@ -88,7 +88,7 @@ class Addresses(models.Model):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    user_id = models.CharField(max_length=20, unique=True, primary_key=True)
+    id = models.CharField(max_length=20, unique=True, primary_key=True)
     first_name = models.CharField(max_length=50)
     second_name = models.CharField(max_length=50, blank=True, null=True)
     last_name = models.CharField(max_length=50)
@@ -107,11 +107,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['user_id', 'first_name', 'last_name', 'username']
+    REQUIRED_FIELDS = ['id', 'first_name', 'last_name', 'username']
 
     class Meta:
         db_table = 'users'
-        managed = False
 
     def __str__(self):
         return self.id
@@ -120,9 +119,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     def get_full_name(self):
         return f"{self.first_name} {self.last_name}"
 
-    @property
-    def id(self):
-        return self.user_id
 
     def tokens(self):
         refresh = RefreshToken.for_user(self)

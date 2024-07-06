@@ -11,7 +11,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('user_id', 'email', 'username', 'first_name', 'second_name', 'last_name', 'last_name2', 'phone_number'
+        fields = ('id', 'email', 'username', 'first_name', 'second_name', 'last_name', 'last_name2', 'phone_number'
                   , 'password', 'password_confirm', 'address_id')
 
     def validate(self, attrs):
@@ -24,7 +24,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = User.objects.create_user(
-            user_id=validated_data['user_id'],
+            id=validated_data['id'],
             email=validated_data['email'],
             username=validated_data['username'],
             password=validated_data['password'],
@@ -41,13 +41,14 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 class LoginSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(max_length=255, min_length=6)
     password = serializers.CharField(max_length=68, write_only=True)
+    id = serializers.CharField(read_only=True)
     full_name = serializers.CharField(max_length=255, read_only=True)
     access_token = serializers.CharField(max_length=255, read_only=True)
     refresh_token = serializers.CharField(max_length=255, read_only=True)
 
     class Meta:
         model = User
-        fields = ['email', 'password', 'full_name', 'access_token', 'refresh_token']
+        fields = ['email', 'id', 'password', 'full_name', 'access_token', 'refresh_token']
 
     def validate(self, attrs):
         email = attrs.get('email')
@@ -62,6 +63,7 @@ class LoginSerializer(serializers.ModelSerializer):
 
         return {
             'email': user.email,
+            'id': user.id,
             'full_name': user.get_full_name,
             'access_token': str(user_tokens.get('access')),
             'refresh_token': str(user_tokens.get('refresh'))
