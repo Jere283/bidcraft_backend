@@ -62,3 +62,13 @@ class FavoritesView(GenericAPIView):
                 'message': "Favorite successfully created."
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        try:
+            favorite = Favorites.objects.get(pk=pk)
+            favorite.delete()
+            return Response({
+                'message': "Favorite successfully deleted."
+            }, status=status.HTTP_204_NO_CONTENT)
+        except Favorites.DoesNotExist:
+            return Response({'error': 'Favorite not found'}, status=status.HTTP_404_NOT_FOUND)
