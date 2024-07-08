@@ -1,7 +1,7 @@
 # views.py
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.generics import GenericAPIView
+from rest_framework.generics import GenericAPIView, get_object_or_404
 from .models import Category, Auction, Favorites
 from .serializers import CategorySerializer, AuctionSerializer, FavoritesSerializer
 
@@ -55,16 +55,16 @@ class CreateAuctionView(GenericAPIView):
 
     def delete(self, request, pk):
         try:
-            product = Product.objects.get(pk=pk)
+            product = Auction.objects.get(pk=pk)
             product.delete()
             return Response({
                 'message': "Product successfully deleted."
             }, status=status.HTTP_204_NO_CONTENT)
-        except Product.DoesNotExist:
+        except Auction.DoesNotExist:
             return Response({'error': 'Product not found'}, status=status.HTTP_404_NOT_FOUND)
 
     def patch(self, request, pk):
-        product = get_object_or_404(Product, pk=pk)
+        product = get_object_or_404(Auction, pk=pk)
         serializer = self.serializer_class(instance=product, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
