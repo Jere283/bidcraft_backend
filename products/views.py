@@ -1,11 +1,9 @@
 # views.py
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.generics import GenericAPIView, get_object_or_404
-
-from users.models import User
-from .models import Category, Product, Favorites
-from .serializers import CategorySerializer, ProductSerializer, FavoritesSerializer
+from rest_framework.generics import GenericAPIView
+from .models import Category, Auction, Favorites
+from .serializers import CategorySerializer, AuctionSerializer, FavoritesSerializer
 
 
 class CreateCategoryView(GenericAPIView):
@@ -37,10 +35,10 @@ class CreateCategoryView(GenericAPIView):
         except Category.DoesNotExist:
             return Response({'error': 'Categoría no encontrada'}, status=status.HTTP_404_NOT_FOUND)
 
-class CreateProductView(GenericAPIView):
-    serializer_class = ProductSerializer
+class CreateAuctionView(GenericAPIView):
+    serializer_class = AuctionSerializer
     def get(self, request):
-        products = Product.objects.all()
+        products = Auction.objects.all()
         serializer = self.serializer_class(products, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     def post(self, request):
