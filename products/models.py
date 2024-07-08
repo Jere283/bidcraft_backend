@@ -12,8 +12,14 @@ class Category(models.Model):
         managed = False
         db_table = 'categories'
 
-    def __str__(self): #para devolver el nombre de la categoría cuando se convierta el objeto a una cadena.
-        return self.category_name
+def create_category(category_name, **extra_fields):
+    if not category_name:
+        raise ValueError('Se necesita un nombre de categoría')
+
+    category = Category(category_name=category_name, **extra_fields)
+    category.save()
+
+    return category
 
 class Product(models.Model):
     product_id = models.AutoField(primary_key=True)

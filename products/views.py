@@ -1,7 +1,9 @@
 # views.py
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.generics import GenericAPIView
+from rest_framework.generics import GenericAPIView, get_object_or_404
+
+from users.models import User
 from .models import Category, Product, Favorites
 from .serializers import CategorySerializer, ProductSerializer, FavoritesSerializer
 
@@ -25,6 +27,16 @@ class CreateCategoryView(GenericAPIView):
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def delete(self, request, pk):
+        try:
+            category = Category.objects.get(pk=pk)
+            category.delete()
+            return Response({
+                'message': "Categoría eliminada exitosamente."
+            }, status=status.HTTP_204_NO_CONTENT)
+        except Category.DoesNotExist:
+            return Response({'error': 'Categoría no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+
 class CreateProductView(GenericAPIView):
     serializer_class = ProductSerializer
     def get(self, request):
@@ -43,11 +55,40 @@ class CreateProductView(GenericAPIView):
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def delete(self, request, pk):
+        try:
+            product = Product.objects.get(pk=pk)
+            product.delete()
+            return Response({
+                'message': "Product successfully deleted."
+            }, status=status.HTTP_204_NO_CONTENT)
+        except Product.DoesNotExist:
+            return Response({'error': 'Product not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    def patch(self, request, pk):
+        product = get_object_or_404(Product, pk=pk)
+        serializer = self.serializer_class(instance=product, data=request.data, partial=True)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 class FavoritesView(GenericAPIView):
     serializer_class = FavoritesSerializer
 
-    def get(self, request):
-        favorites = Favorites.objects.all()
+   #def get(self, request):
+        #favorites = Favorites.objects.all()
+        #serializer = self.serializer_class(favorites, many=True)
+        #return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def get(self, request, pk=None):
+        if pk is not None:
+            # Filtrar favoritos por user_id
+            favorites = Favorites.objects.filter(user_id=pk)
+        else:
+            # Obtener todos los favoritos
+            favorites = Favorites.objects.all()
+
         serializer = self.serializer_class(favorites, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

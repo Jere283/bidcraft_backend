@@ -3,6 +3,9 @@ from .models import Category, Product, Favorites
 from users.models import User
 
 class CategorySerializer(serializers.ModelSerializer):
+    category_id = serializers.CharField(read_only=True)
+    category_name = serializers.CharField(max_length=15, min_length=2)
+
     class Meta:
         model = Category
         fields = ['category_id', 'category_name']
@@ -10,7 +13,7 @@ class CategorySerializer(serializers.ModelSerializer):
 class ProductSerializer(serializers.ModelSerializer):
     seller = serializers.SlugRelatedField(
         queryset=User.objects.all(),
-        slug_field='user_id'
+        slug_field='id'
     )
     category = serializers.SlugRelatedField(
         queryset=Category.objects.all(),
@@ -39,7 +42,7 @@ class ProductSerializer(serializers.ModelSerializer):
 class FavoritesSerializer(serializers.ModelSerializer):
     user = serializers.SlugRelatedField(
         queryset=User.objects.all(),
-        slug_field='user_id'
+        slug_field='id'
     )
     product = serializers.SlugRelatedField(
         queryset=Product.objects.all(),
