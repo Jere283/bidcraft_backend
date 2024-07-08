@@ -2,8 +2,8 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView
-from .models import Category, Product, Favorites
-from .serializers import CategorySerializer, ProductSerializer, FavoritesSerializer
+from .models import Category, Auction, Favorites
+from .serializers import CategorySerializer, AuctionSerializer, FavoritesSerializer
 
 
 class CreateCategoryView(GenericAPIView):
@@ -25,10 +25,10 @@ class CreateCategoryView(GenericAPIView):
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class CreateProductView(GenericAPIView):
-    serializer_class = ProductSerializer
+class CreateAuctionView(GenericAPIView):
+    serializer_class = AuctionSerializer
     def get(self, request):
-        products = Product.objects.all()
+        products = Auction.objects.all()
         serializer = self.serializer_class(products, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     def post(self, request):
@@ -42,6 +42,7 @@ class CreateProductView(GenericAPIView):
                 'message': "Product successfully created."
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class FavoritesView(GenericAPIView):
     serializer_class = FavoritesSerializer
