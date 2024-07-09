@@ -73,12 +73,11 @@ class Bids(models.Model):
 class Favorites(models.Model):
     favorite_id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, models.DO_NOTHING)
-    product = models.ForeignKey(Auction, models.DO_NOTHING)
+    auction = models.ForeignKey(Auction, models.DO_NOTHING)
     date_added = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = 'favorites'
-
-
+        unique_together = (('user', 'auction'),)
 

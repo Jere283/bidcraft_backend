@@ -2,7 +2,7 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView, get_object_or_404
-from .models import Category, Auction, Favorites
+from .models import Category, Auction, Favorites, User
 from .serializers import CategorySerializer, AuctionSerializer, FavoritesSerializer
 
 
@@ -81,8 +81,8 @@ class FavoritesView(GenericAPIView):
 
     def get(self, request, pk=None):
         if pk is not None:
-            # Filtrar favoritos por user_id
-            favorites = Favorites.objects.filter(user_id=pk)
+            # Filtrar favoritos por id
+            favorites = Favorites.objects.filter(user=pk)
         else:
             # Obtener todos los favoritos
             favorites = Favorites.objects.all()
@@ -104,7 +104,7 @@ class FavoritesView(GenericAPIView):
 
     def delete(self, request, pk):
         try:
-            favorite = Favorites.objects.get(pk=pk)
+            favorite = Favorites.objects.get(user=pk)
             favorite.delete()
             return Response({
                 'message': "Favorite successfully deleted."

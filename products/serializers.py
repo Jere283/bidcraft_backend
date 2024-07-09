@@ -53,15 +53,15 @@ class AuctionSerializer(serializers.ModelSerializer):
 class FavoritesSerializer(serializers.ModelSerializer):
     user = serializers.SlugRelatedField(
         queryset=User.objects.all(),
-        slug_field='user_id'
+        slug_field='id'
     )
-    product = serializers.SlugRelatedField(
+    auction = serializers.SlugRelatedField(
         queryset=Auction.objects.all(),
-        slug_field='product_id',
+        slug_field='auction_id',
         allow_null=True,
         required=False
     )
 
     class Meta:
         model = Favorites
-        fields = ['favorite_id', 'user', 'product', 'date_added']
+        fields = ['favorite_id', 'user', 'auction', 'date_added']
