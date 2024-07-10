@@ -9,8 +9,14 @@ class Category(models.Model):
         managed = False
         db_table = 'categories'
 
-    def __str__(self): #para devolver el nombre de la categoría cuando se convierta el objeto a una cadena.
-        return self.category_name
+def create_category(category_name, **extra_fields):
+    if not category_name:
+        raise ValueError('Se necesita un nombre de categoría')
+
+    category = Category(category_name=category_name, **extra_fields)
+    category.save()
+
+    return category
 
 
 class Status(models.Model):
@@ -67,12 +73,11 @@ class Bids(models.Model):
 class Favorites(models.Model):
     favorite_id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, models.DO_NOTHING)
-    product = models.ForeignKey(Auction, models.DO_NOTHING)
+    auction = models.ForeignKey(Auction, models.DO_NOTHING)
     date_added = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = 'favorites'
-
-
+        unique_together = (('user', 'auction'),)
 
