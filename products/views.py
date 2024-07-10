@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView, get_object_or_404
 from .models import Category, Auction, Favorites, User
-from .serializers import CategorySerializer, AuctionSerializer, FavoritesSerializer
+from .serializers import CategorySerializer, CreateAuctionSerializer, CreateFavoritesSerializer, GetAuctionSerializer, GetFavoriteSerializer
 
 
 class CreateCategoryView(GenericAPIView):
@@ -35,12 +35,19 @@ class CreateCategoryView(GenericAPIView):
         except Category.DoesNotExist:
             return Response({'error': 'Categoría no encontrada'}, status=status.HTTP_404_NOT_FOUND)
 
-class CreateAuctionView(GenericAPIView):
-    serializer_class = AuctionSerializer
+
+class GetAuctionView(GenericAPIView):
+    serializer_class = GetAuctionSerializer
+
     def get(self, request):
         products = Auction.objects.all()
         serializer = self.serializer_class(products, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class CreateAuctionView(GenericAPIView):
+    serializer_class = CreateAuctionSerializer
+
     def post(self, request):
         product_data = request.data
         serializer = self.serializer_class(data=product_data)
@@ -71,24 +78,32 @@ class CreateAuctionView(GenericAPIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class FavoritesView(GenericAPIView):
-    serializer_class = FavoritesSerializer
+
+class GetFavoriteView(GenericAPIView):
+    serializer_class = GetFavoriteSerializer
+
+    def get(self, request, pk=None):
+        try:
+            if pk is not None:
+                favorites = Favorites.objects.filter(user=pk)
+            else:
+                favorites = Favorites.objects.all()
+
+            serializer = self.serializer_class(favorites, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except Favorites.DoesNotExist:
+            return Response({"error": "Favorites not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+class CreateFavoritesView(GenericAPIView):
+    serializer_class = CreateFavoritesSerializer
 
    #def get(self, request):
         #favorites = Favorites.objects.all()
         #serializer = self.serializer_class(favorites, many=True)
         #return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def get(self, request, pk=None):
-        if pk is not None:
-            # Filtrar favoritos por id
-            favorites = Favorites.objects.filter(user=pk)
-        else:
-            # Obtener todos los favoritos
-            favorites = Favorites.objects.all()
-
-        serializer = self.serializer_class(favorites, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
         favorite_data = request.data

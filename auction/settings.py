@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'users',
-    'products'
+    'products',
+    'bids'
 ]
 
 MIDDLEWARE = [
@@ -59,6 +60,9 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'auction.urls'
+
+USE_TZ = True
+
 
 TEMPLATES = [
     {

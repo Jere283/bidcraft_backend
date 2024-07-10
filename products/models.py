@@ -59,16 +59,7 @@ class AuctionsStatuses(models.Model):
         db_table = 'auctions_statuses'
 
 
-class Bids(models.Model):
-    bid_id = models.AutoField(primary_key=True)
-    auction = models.ForeignKey(Auction, models.DO_NOTHING)
-    bidder = models.ForeignKey(User, models.DO_NOTHING)
-    bid_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    bid_time = models.DateTimeField(blank=True, null=True)
 
-    class Meta:
-        managed = False
-        db_table = 'bids'
 
 class Favorites(models.Model):
     favorite_id = models.AutoField(primary_key=True)
@@ -81,3 +72,12 @@ class Favorites(models.Model):
         db_table = 'favorites'
         unique_together = (('user', 'auction'),)
 
+
+class ProductImage(models.Model):
+    image_id = models.AutoField(primary_key=True)
+    product = models.ForeignKey(Auction, models.DO_NOTHING)
+    image_url = models.CharField(max_length=255)
+
+    class Meta:
+        managed = False
+        db_table = 'product_images'
