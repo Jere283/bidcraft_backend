@@ -2,4 +2,5 @@
 /products/__pycache__
 /auction/__pycache__
 .env
+.idea
 
