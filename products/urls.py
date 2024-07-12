@@ -2,7 +2,7 @@ from rest_framework.routers import DefaultRouter
 from django.urls import path, include
 
 from .views import CreateCategoryView, CreateAuctionView, CreateFavoritesView, GetAuctionView, GetFavoriteView, \
-    CheckFavoriteView
+    CheckFavoriteView, AuctionFavoriteCountView, GetSingleAuctionView
 
 urlpatterns = [
     #CATEGORIAS
@@ -14,7 +14,9 @@ urlpatterns = [
     path('auction/create/one/', CreateAuctionView.as_view(), name='create_products'),
     path('auction/edit/one/<int:pk>/', CreateAuctionView.as_view(), name='edit_products'),
     path('auction/delete/one/<int:pk>/', CreateAuctionView.as_view(), name='delete_products'),  # URL para PUT y DELETE
-    path('auction/byCategory/<int:pk>/', CreateAuctionView.as_view(), name='show_products'),
+    path('auction/category/<int:pk>/', CreateAuctionView.as_view(), name='show_products'),
+    path('auction/favorite_count/<int:auction_id>/', AuctionFavoriteCountView.as_view(), name='auction-favorite-count'),
+    path('auction/show/one/<int:auction_id>/', GetSingleAuctionView.as_view(), name='get-single-auction'),
     #FAVORITOS
     path('favorites/show/all/', GetFavoriteView.as_view(), name='show_favorites_products'),
     path('favorites/create/one/', CreateFavoritesView.as_view(), name='create_favorites_product'),

@@ -137,3 +137,24 @@ class CheckFavoriteView(GenericAPIView):
             return Response({'exists': favorite_exists}, status=status.HTTP_200_OK)
 
         return Response({'exists': favorite_exists}, status=status.HTTP_404_NOT_FOUND)
+
+class AuctionFavoriteCountView(GenericAPIView):
+
+    def get(self, request, auction_id):
+        try:
+            auction = Auction.objects.get(pk=auction_id)
+            favorite_count = Favorites.objects.filter(auction=auction).count()
+            return Response({'auction_id': auction_id, 'favorite_count': favorite_count}, status=status.HTTP_200_OK)
+
+        except Auction.DoesNotExist:
+            return Response({'error': 'Auction not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class GetSingleAuctionView(GenericAPIView):
+    serializer_class = GetAuctionSerializer
+
+    def get(self, request, auction_id):
+        auction = get_object_or_404(Auction, pk=auction_id)
+        serializer = self.serializer_class(auction)
+        return Response(serializer.data, status=status.HTTP_200_OK)
