@@ -17,6 +17,7 @@ urlpatterns = [
     path('auction/category/<int:pk>/', CreateAuctionView.as_view(), name='show_products'),
     path('auction/favorite_count/<int:auction_id>/', AuctionFavoriteCountView.as_view(), name='auction-favorite-count'),
     path('auction/show/one/<int:auction_id>/', GetSingleAuctionView.as_view(), name='get-single-auction'),
+    ##
     #FAVORITOS
     path('favorites/show/all/', GetFavoriteView.as_view(), name='show_favorites_products'),
     path('favorites/create/one/', CreateFavoritesView.as_view(), name='create_favorites_product'),
