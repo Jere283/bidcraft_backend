@@ -126,3 +126,14 @@ class CreateFavoritesView(GenericAPIView):
             }, status=status.HTTP_204_NO_CONTENT)
         except Favorites.DoesNotExist:
             return Response({'error': 'Favorite not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class CheckFavoriteView(GenericAPIView):
+
+    def get(self, request, user_id, auction_id):
+        favorite_exists = Favorites.objects.filter(user=user_id, auction=auction_id).exists()
+
+        if favorite_exists:
+            return Response({'exists': favorite_exists}, status=status.HTTP_200_OK)
+
+        return Response({'exists': favorite_exists}, status=status.HTTP_404_NOT_FOUND)

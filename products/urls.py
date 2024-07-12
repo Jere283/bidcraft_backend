@@ -1,7 +1,8 @@
 from rest_framework.routers import DefaultRouter
 from django.urls import path, include
 
-from .views import CreateCategoryView, CreateAuctionView, CreateFavoritesView, GetAuctionView, GetFavoriteView
+from .views import CreateCategoryView, CreateAuctionView, CreateFavoritesView, GetAuctionView, GetFavoriteView, \
+    CheckFavoriteView
 
 urlpatterns = [
     #CATEGORIAS
@@ -18,4 +19,5 @@ urlpatterns = [
     path('favorites/create/one/', CreateFavoritesView.as_view(), name='create_favorites_product'),
     path('favorites/delete/one/<int:pk>/', CreateFavoritesView.as_view(), name='delete_favorites_products'),
     path('favorites/user/<str:pk>/', GetFavoriteView.as_view(), name='favorites_byUser_products'),
+    path('favorites/<str:user_id>/<int:auction_id>/', CheckFavoriteView.as_view(), name='check-favorite'),
 ]
