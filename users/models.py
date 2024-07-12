@@ -103,6 +103,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(auto_now_add=True)
     address = models.ForeignKey(Addresses, models.DO_NOTHING, blank=True, null=True)
     otp_verified = models.BooleanField(blank=True, null=True)
+    profile_img = models.CharField(max_length=200, blank=True, null=True)
 
     objects = CustomUserManager()
 

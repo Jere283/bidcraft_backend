@@ -60,6 +60,9 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'auction.urls'
 
+USE_TZ = True
+
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
