@@ -13,6 +13,7 @@ urlpatterns = [
     path('auction/create/one/', CreateAuctionView.as_view(), name='create_products'),
     path('auction/edit/one/<int:pk>/', CreateAuctionView.as_view(), name='edit_products'),
     path('auction/delete/one/<int:pk>/', CreateAuctionView.as_view(), name='delete_products'),  # URL para PUT y DELETE
+    path('auction/byCategory/<int:pk>/', CreateAuctionView.as_view(), name='show_products'),
     #FAVORITOS
     path('favorites/show/all/', FavoritesView.as_view(), name='show_favorites_products'),
     path('favorites/create/one/', FavoritesView.as_view(), name='create_favorites_product'),

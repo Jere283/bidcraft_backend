@@ -12,7 +12,10 @@ class CreateCategoryView(GenericAPIView):
     def get(self, request):
         categories = Category.objects.all()
         serializer = self.serializer_class(categories, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.data,{
+                    "message": "Hay categorías disponibles"
+                },  status=status.HTTP_204_NO_CONTENT)
+
     def post(self, request):
         category_data = request.data
         serializer = self.serializer_class(data=category_data)
@@ -36,9 +39,18 @@ class CreateCategoryView(GenericAPIView):
             return Response({'error': 'Categoría no encontrada'}, status=status.HTTP_404_NOT_FOUND)
 
 class CreateAuctionView(GenericAPIView):
+
     serializer_class = AuctionSerializer
-    def get(self, request):
-        products = Auction.objects.all()
+    #def get(self, request):
+        #products = Auction.objects.all()
+        #serializer = self.serializer_class(products, many=True)
+        #return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def get(self, request, pk=None):
+        if pk:
+            products = Auction.objects.filter(category_id=pk)
+        else:
+            products = Auction.objects.all()
         serializer = self.serializer_class(products, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     def post(self, request):
