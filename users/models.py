@@ -13,7 +13,7 @@ class CustomUserManager(BaseUserManager):
         except ValidationError:
             raise ValueError("Ingresa un correo electronico valido")
 
-    def create_user(self, user_id, email, first_name, last_name, username, password, **extra_fields):
+    def create_user(self, id, email, first_name, last_name, username, password, **extra_fields):
         if not email:
             raise ValueError('Se necesita un correo electronico')
         email = self.normalize_email(email)
@@ -24,14 +24,14 @@ class CustomUserManager(BaseUserManager):
         if not last_name:
             raise ValueError('Se necesita un apellido')
 
-        user = self.model(user_id=user_id, email=email, username=username, first_name=first_name,
+        user = self.model(id=id, email=email, username=username, first_name=first_name,
                           last_name=last_name, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
 
         return user
 
-    def create_superuser(self, user_id, email, first_name, last_name, username=None, password=None, **extra_fields):
+    def create_superuser(self, id, email, first_name, last_name, username=None, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
 
@@ -41,7 +41,7 @@ class CustomUserManager(BaseUserManager):
             raise ValueError('Superuser must have is_superuser=True.')
 
         user = self.create_user(
-            user_id, email, first_name, last_name, username, password, **extra_fields
+            id, email, first_name, last_name, username, password, **extra_fields
         )
         user.save(using=self._db)
 
@@ -103,6 +103,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(auto_now_add=True)
     address = models.ForeignKey(Addresses, models.DO_NOTHING, blank=True, null=True)
     otp_verified = models.BooleanField(blank=True, null=True)
+    profile_img = models.CharField(max_length=200, blank=True, null=True)
 
     objects = CustomUserManager()
 
@@ -110,6 +111,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ['id', 'first_name', 'last_name', 'username']
 
     class Meta:
+        managed = False
         db_table = 'users'
 
     def __str__(self):

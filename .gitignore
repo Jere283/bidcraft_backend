@@ -1,5 +1,8 @@
 /users/__pycache__
 /products/__pycache__
 /auction/__pycache__
-/users/migrations
-/products/migrations
+.env
+.idea
+.idea/misc.xml
+.idea/auction.iml
+
