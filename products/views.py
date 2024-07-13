@@ -97,13 +97,9 @@ class GetFavoriteView(GenericAPIView):
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 class CreateFavoritesView(GenericAPIView):
     serializer_class = CreateFavoritesSerializer
-
-   #def get(self, request):
-        #favorites = Favorites.objects.all()
-        #serializer = self.serializer_class(favorites, many=True)
-        #return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
         favorite_data = request.data
@@ -122,10 +118,10 @@ class CreateFavoritesView(GenericAPIView):
             favorite = Favorites.objects.get(user=pk)
             favorite.delete()
             return Response({
-                'message': "Favorite successfully deleted."
+                'message': "El favorito fue borrado."
             }, status=status.HTTP_204_NO_CONTENT)
         except Favorites.DoesNotExist:
-            return Response({'error': 'Favorite not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'favorito no encontrado'}, status=status.HTTP_404_NOT_FOUND)
 
 
 class CheckFavoriteView(GenericAPIView):
@@ -133,10 +129,23 @@ class CheckFavoriteView(GenericAPIView):
     def get(self, request, user_id, auction_id):
         favorite_exists = Favorites.objects.filter(user=user_id, auction=auction_id).exists()
 
-        if favorite_exists:
-            return Response({'exists': favorite_exists}, status=status.HTTP_200_OK)
 
-        return Response({'exists': favorite_exists}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'exists': favorite_exists}, status=status.HTTP_200_OK)
+
+
+class DeleteFavoriteUserAuction(GenericAPIView):
+
+    def delete(self, request, user_id, auction_id):
+        favorite = Favorites.objects.filter(user=user_id, auction=auction_id)
+
+        if favorite.exists():
+            favorite.delete()
+            return Response({
+                'message': "El favorito fue borrado"
+            }, status=status.HTTP_204_NO_CONTENT)
+
+        return Response({'error': 'favorito no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
 
 class AuctionFavoriteCountView(GenericAPIView):
 
@@ -157,4 +166,20 @@ class GetSingleAuctionView(GenericAPIView):
     def get(self, request, auction_id):
         auction = get_object_or_404(Auction, pk=auction_id)
         serializer = self.serializer_class(auction)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+
+        if auction.exists():
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response({'error': 'Subasta no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+
+#obtener la subasta por la id de la categoria
+class GetAuctionByCategory(GenericAPIView):
+    serializer_class = GetAuctionSerializer
+    def get(self, request, category_id):
+        auctions = Auction.objects.filter(category=category_id)
+        serializer = self.serializer_class(auctions, many=True)
+
+        if auctions.exists():
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response({'error': 'La categoria no tiene subastas'}, status=status.HTTP_404_NOT_FOUND)

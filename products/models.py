@@ -9,14 +9,14 @@ class Category(models.Model):
         managed = False
         db_table = 'categories'
 
-def create_category(category_name, **extra_fields):
-    if not category_name:
-        raise ValueError('Se necesita un nombre de categoría')
+    def create_category(category_name, **extra_fields):
+        if not category_name:
+            raise ValueError('Se necesita un nombre de categoría')
 
-    category = Category(category_name=category_name, **extra_fields)
-    category.save()
+        category = Category(category_name=category_name, **extra_fields)
+        category.save()
 
-    return category
+        return category
 
 
 class Status(models.Model):

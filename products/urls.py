@@ -2,7 +2,7 @@ from rest_framework.routers import DefaultRouter
 from django.urls import path, include
 
 from .views import CreateCategoryView, CreateAuctionView, CreateFavoritesView, GetAuctionView, GetFavoriteView, \
-    CheckFavoriteView, AuctionFavoriteCountView, GetSingleAuctionView
+    CheckFavoriteView, AuctionFavoriteCountView, GetSingleAuctionView, DeleteFavoriteUserAuction, GetAuctionByCategory
 
 urlpatterns = [
     #CATEGORIAS
@@ -14,8 +14,8 @@ urlpatterns = [
     path('auction/create/one/', CreateAuctionView.as_view(), name='create_products'),
     path('auction/edit/one/<int:pk>/', CreateAuctionView.as_view(), name='edit_products'),
     path('auction/delete/one/<int:pk>/', CreateAuctionView.as_view(), name='delete_products'),  # URL para PUT y DELETE
-    path('auction/category/<int:pk>/', CreateAuctionView.as_view(), name='show_products'),
-    path('auction/favorite_count/<int:auction_id>/', AuctionFavoriteCountView.as_view(), name='auction-favorite-count'),
+    path('auction/show/all/category/<int:category_id>/', GetAuctionByCategory.as_view(), name='show_products_by_category'),
+    path('auction/favorite/count/<int:auction_id>/', AuctionFavoriteCountView.as_view(), name='auction-favorite-count'),
     path('auction/show/one/<int:auction_id>/', GetSingleAuctionView.as_view(), name='get-single-auction'),
     ##
     #FAVORITOS
@@ -24,4 +24,5 @@ urlpatterns = [
     path('favorites/delete/one/<int:pk>/', CreateFavoritesView.as_view(), name='delete_favorites_products'),
     path('favorites/user/<str:pk>/', GetFavoriteView.as_view(), name='favorites_byUser_products'),
     path('favorites/<str:user_id>/<int:auction_id>/', CheckFavoriteView.as_view(), name='check-favorite'),
+    path('favorites/delete/one/<str:user_id>/<int:auction_id>/',DeleteFavoriteUserAuction.as_view(), name='check-del-favorite'),
 ]
