@@ -1,7 +1,7 @@
 
 from django.utils import timezone
 from rest_framework import serializers
-from .models import Category, Auction, Favorites, Status
+from .models import Category, Auction, Favorites, Status, AuctionImage
 from users.models import User
 from users.serializers import LoginSerializer, UserRegisterSerializer
 
@@ -121,3 +121,19 @@ class GetFavoriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Favorites
         fields = ['favorite_id', 'user', 'auction', 'date_added']
+
+class CreateImageForAuctionSerializer(serializers.ModelSerializer):
+    auction = serializers.PrimaryKeyRelatedField(queryset=Auction.objects.all())
+
+    class Meta:
+        model = AuctionImage
+        fields =['image_id', 'auction', 'image_url']
+
+    def create(self, validated_data):
+        image = AuctionImage.objects.create(
+            auction = validated_data['auction'],
+            image_url =validated_data['image_url']
+
+        )
+        return  image
+

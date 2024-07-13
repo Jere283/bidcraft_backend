@@ -59,8 +59,6 @@ class AuctionsStatuses(models.Model):
         db_table = 'auctions_statuses'
 
 
-
-
 class Favorites(models.Model):
     favorite_id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, models.DO_NOTHING)
@@ -73,11 +71,11 @@ class Favorites(models.Model):
         unique_together = (('user', 'auction'),)
 
 
-class ProductImage(models.Model):
+class AuctionImage(models.Model):
     image_id = models.AutoField(primary_key=True)
-    product = models.ForeignKey(Auction, models.DO_NOTHING)
+    auction = models.ForeignKey(Auction, models.DO_NOTHING)
     image_url = models.CharField(max_length=255)
 
     class Meta:
         managed = False
-        db_table = 'product_images'
+        db_table = 'auction_images'

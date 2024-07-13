@@ -2,7 +2,8 @@ from rest_framework.routers import DefaultRouter
 from django.urls import path, include
 
 from .views import CreateCategoryView, CreateAuctionView, CreateFavoritesView, GetAuctionView, GetFavoriteView, \
-    CheckFavoriteView, AuctionFavoriteCountView, GetSingleAuctionView, DeleteFavoriteUserAuction, GetAuctionByCategory
+    CheckFavoriteView, AuctionFavoriteCountView, GetSingleAuctionView, DeleteFavoriteUserAuction, GetAuctionByCategory, \
+    CreateImageForAuction
 
 urlpatterns = [
     #CATEGORIAS
@@ -17,6 +18,7 @@ urlpatterns = [
     path('auction/show/all/category/<int:category_id>/', GetAuctionByCategory.as_view(), name='show_products_by_category'),
     path('auction/favorite/count/<int:auction_id>/', AuctionFavoriteCountView.as_view(), name='auction-favorite-count'),
     path('auction/show/one/<int:auction_id>/', GetSingleAuctionView.as_view(), name='get-single-auction'),
+    path('auction/image/add', CreateImageForAuction.as_view(), name='add-image-auction'),
     ##
     #FAVORITOS
     path('favorites/show/all/', GetFavoriteView.as_view(), name='show_favorites_products'),

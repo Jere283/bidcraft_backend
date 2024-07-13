@@ -3,7 +3,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView, get_object_or_404
 from .models import Category, Auction, Favorites, User
-from .serializers import CategorySerializer, CreateAuctionSerializer, CreateFavoritesSerializer, GetAuctionSerializer, GetFavoriteSerializer
+from .serializers import CategorySerializer, CreateAuctionSerializer, CreateFavoritesSerializer, GetAuctionSerializer, \
+    GetFavoriteSerializer, CreateImageForAuctionSerializer
 
 
 class CreateCategoryView(GenericAPIView):
@@ -183,3 +184,18 @@ class GetAuctionByCategory(GenericAPIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response({'error': 'La categoria no tiene subastas'}, status=status.HTTP_404_NOT_FOUND)
+
+class CreateImageForAuction(GenericAPIView):
+
+    serializer_class = CreateImageForAuctionSerializer
+    def post(self, request):
+        image_data = request.data
+        serializer = self.serializer_class(data=image_data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            image_data = serializer.data
+            return Response({
+                'data': image_data,
+                'message': "La imagen fue agregada a la subasta"
+            }, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
