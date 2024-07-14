@@ -23,7 +23,7 @@ class CreateCategoryView(GenericAPIView):
             category_data = serializer.data
             return Response({
                 'data': category_data,
-                'message': "Category successfully created."
+                'message': "La categoria fue creada de manera exitosa"
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -58,7 +58,7 @@ class CreateAuctionView(GenericAPIView):
             product_data = serializer.data
             return Response({
                 'data': product_data,
-                'message': "Product successfully created."
+                'message': "La subasta fue creada de manera exitosa"
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -67,10 +67,10 @@ class CreateAuctionView(GenericAPIView):
             product = Auction.objects.get(pk=pk)
             product.delete()
             return Response({
-                'message': "Product successfully deleted."
+                'message': "La subasta fue borrada de forma correcta"
             }, status=status.HTTP_204_NO_CONTENT)
         except Auction.DoesNotExist:
-            return Response({'error': 'Product not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'Subasta no econtrada'}, status=status.HTTP_404_NOT_FOUND)
 
     def patch(self, request, pk):
         product = get_object_or_404(Auction, pk=pk)
@@ -95,7 +95,7 @@ class GetFavoriteView(GenericAPIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         except Favorites.DoesNotExist:
-            return Response({"error": "Favorites not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": "El favorito no fue encontrado"}, status=status.HTTP_404_NOT_FOUND)
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -112,7 +112,7 @@ class CreateFavoritesView(GenericAPIView):
             favorite_data = serializer.data
             return Response({
                 'data': favorite_data,
-                'message': "Favorite successfully created."
+                'message': "Favorito creado!"
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -158,7 +158,7 @@ class AuctionFavoriteCountView(GenericAPIView):
             return Response({'auction_id': auction_id, 'favorite_count': favorite_count}, status=status.HTTP_200_OK)
 
         except Auction.DoesNotExist:
-            return Response({'error': 'Auction not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'Subasta no encontrada'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
