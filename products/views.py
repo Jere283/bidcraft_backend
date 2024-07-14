@@ -14,6 +14,7 @@ class CreateCategoryView(GenericAPIView):
         categories = Category.objects.all()
         serializer = self.serializer_class(categories, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
     def post(self, request):
         category_data = request.data
         serializer = self.serializer_class(data=category_data)
@@ -99,6 +100,7 @@ class GetFavoriteView(GenericAPIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
 class CreateFavoritesView(GenericAPIView):
     serializer_class = CreateFavoritesSerializer
 
@@ -130,7 +132,6 @@ class CheckFavoriteView(GenericAPIView):
     def get(self, request, user_id, auction_id):
         favorite_exists = Favorites.objects.filter(user=user_id, auction=auction_id).exists()
 
-
         return Response({'exists': favorite_exists}, status=status.HTTP_200_OK)
 
 
@@ -161,21 +162,20 @@ class AuctionFavoriteCountView(GenericAPIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
 class GetSingleAuctionView(GenericAPIView):
     serializer_class = GetAuctionSerializer
 
     def get(self, request, auction_id):
         auction = get_object_or_404(Auction, pk=auction_id)
         serializer = self.serializer_class(auction)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-        if auction.exists():
-            return Response(serializer.data, status=status.HTTP_200_OK)
-
-        return Response({'error': 'Subasta no encontrada'}, status=status.HTTP_404_NOT_FOUND)
 
 #obtener la subasta por la id de la categoria
 class GetAuctionByCategory(GenericAPIView):
     serializer_class = GetAuctionSerializer
+
     def get(self, request, category_id):
         auctions = Auction.objects.filter(category=category_id)
         serializer = self.serializer_class(auctions, many=True)
@@ -185,9 +185,10 @@ class GetAuctionByCategory(GenericAPIView):
 
         return Response({'error': 'La categoria no tiene subastas'}, status=status.HTTP_404_NOT_FOUND)
 
-class CreateImageForAuction(GenericAPIView):
 
+class CreateImageForAuction(GenericAPIView):
     serializer_class = CreateImageForAuctionSerializer
+
     def post(self, request):
         image_data = request.data
         serializer = self.serializer_class(data=image_data)
