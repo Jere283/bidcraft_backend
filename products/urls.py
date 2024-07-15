@@ -2,7 +2,7 @@ from django.urls import path, include
 
 from .views import CreateCategoryView, CreateAuctionView, CreateFavoritesView, GetAuctionView, GetFavoriteView, \
     CheckFavoriteView, AuctionFavoriteCountView, GetSingleAuctionView, DeleteFavoriteUserAuction, GetAuctionByCategory, \
-    CreateImageForAuction
+    CreateImageForAuction, TagView
 
 urlpatterns = [
     #CATEGORIAS
@@ -18,7 +18,11 @@ urlpatterns = [
     path('auction/favorite/count/<int:auction_id>/', AuctionFavoriteCountView.as_view(), name='auction-favorite-count'),
     path('auction/show/one/<int:auction_id>/', GetSingleAuctionView.as_view(), name='get-single-auction'),
     path('auction/image/add', CreateImageForAuction.as_view(), name='add-image-auction'),
-    ##
+    #TAGS
+    path('tags/show/all/', TagView.as_view(), name='show_tags'),
+    path('tags/create/one/', TagView.as_view(), name='create_tags'),
+    path('tags/edit/one/<int:pk>/', TagView.as_view(), name='edit_tags'),
+    path('tags/delete/one/<int:pk>/', TagView.as_view(), name='delete_tags'),
     #FAVORITOS
     path('favorites/show/all/', GetFavoriteView.as_view(), name='show_favorites_products'),
     path('favorites/create/one/', CreateFavoritesView.as_view(), name='create_favorites_product'),

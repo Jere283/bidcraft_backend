@@ -79,3 +79,11 @@ class AuctionImage(models.Model):
     class Meta:
         managed = False
         db_table = 'auction_images'
+
+class Tags(models.Model):
+    tag_id = models.AutoField(primary_key=True)
+    tag_name = models.CharField(max_length=50)
+
+    class Meta:
+        managed = False
+        db_table = 'tags'

@@ -1,9 +1,9 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView, get_object_or_404
-from .models import Category, Auction, Favorites, User
+from .models import Category, Auction, Favorites, User, Tags
 from .serializers import CategorySerializer, CreateAuctionSerializer, CreateFavoritesSerializer, GetAuctionSerializer, \
-    GetFavoriteSerializer, CreateImageForAuctionSerializer
+    GetFavoriteSerializer, CreateImageForAuctionSerializer, CreateTagSerializer
 
 
 class CreateCategoryView(GenericAPIView):
@@ -199,3 +199,48 @@ class CreateImageForAuction(GenericAPIView):
                 'message': "La imagen fue agregada a la subasta"
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class TagView(GenericAPIView):
+    def get(self, request):
+        tags = Tags.objects.all()
+        serializer = CreateTagSerializer(tags, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        # Obtener el nombre del tag de los datos de la solicitud y capitalizar la primera letra
+        tag_name = request.data.get('tag_name', '').capitalize()
+
+        # Verificar si el nombre del tag está presente en los datos de la solicitud
+        if not tag_name:
+            return Response({'error': 'El nombre del tag es requerido.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Verificar si ya existe un tag con las mismas primeras tres letras
+        existing_tag = Tags.objects.filter(tag_name__istartswith=tag_name[:3]).first()
+        if existing_tag:
+            return Response({
+                'message': 'El tag ya existe.',
+                'tag_id': existing_tag.tag_id,
+                'tag_name': existing_tag.tag_name
+            }, status=status.HTTP_409_CONFLICT)
+
+        # Crear un nuevo tag si no existe uno con las mismas primeras tres letras
+        serializer = CreateTagSerializer(data={'tag_name': tag_name})
+        if serializer.is_valid():
+            tag = serializer.save()
+            return Response({
+                'tag_id': tag.tag_id,
+                'tag_name': tag.tag_name
+            }, status=status.HTTP_201_CREATED)
+
+        # Devolver errores de validación si los datos no son válidos
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        try:
+            tag = Tags.objects.get(pk=pk)
+        except Tags.DoesNotExist:
+            return Response({'error': 'Tag no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+        tag.delete()
+        return Response({'message': 'Tag eliminado exitosamente'}, status=status.HTTP_204_NO_CONTENT)
