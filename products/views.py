@@ -201,22 +201,23 @@ class CreateImageForAuction(GenericAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class TagView(GenericAPIView):
+class GetTagView(GenericAPIView):
     def get(self, request):
         tags = Tags.objects.all()
         serializer = CreateTagSerializer(tags, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+class CreateTagView(GenericAPIView):
     def post(self, request):
         # Obtener el nombre del tag de los datos de la solicitud y capitalizar la primera letra
-        tag_name = request.data.get('tag_name', '').capitalize()
+        tag_name = request.data.get('tag_name', '').lower()
 
         # Verificar si el nombre del tag está presente en los datos de la solicitud
         if not tag_name:
             return Response({'error': 'El nombre del tag es requerido.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Verificar si ya existe un tag con las mismas primeras tres letras
-        existing_tag = Tags.objects.filter(tag_name__istartswith=tag_name[:3]).first()
+        # Verificar si ya existe el tag
+        existing_tag = Tags.objects.filter(tag_name=tag_name).first()
         if existing_tag:
             return Response({
                 'message': 'El tag ya existe.',
@@ -229,6 +230,7 @@ class TagView(GenericAPIView):
         if serializer.is_valid():
             tag = serializer.save()
             return Response({
+                'message': 'Tag creado exitosamente',
                 'tag_id': tag.tag_id,
                 'tag_name': tag.tag_name
             }, status=status.HTTP_201_CREATED)
@@ -236,6 +238,7 @@ class TagView(GenericAPIView):
         # Devolver errores de validación si los datos no son válidos
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class DeleteTagsView(GenericAPIView):
     def delete(self, request, pk):
         try:
             tag = Tags.objects.get(pk=pk)
@@ -244,3 +247,14 @@ class TagView(GenericAPIView):
 
         tag.delete()
         return Response({'message': 'Tag eliminado exitosamente'}, status=status.HTTP_204_NO_CONTENT)
+
+class FindTagsView(GenericAPIView):
+    def get(self, request, tag_name):
+        # Tomar las primeras tres letras del tag_name y convertir a minúsculas
+        prefix = tag_name[:3].lower()
+
+        # Buscar todos los tags que empiecen con esas tres letras
+        matching_tags = Tags.objects.filter(tag_name__istartswith=prefix)
+        serializer = CreateTagSerializer(matching_tags, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)

@@ -140,7 +140,7 @@ class CreateImageForAuctionSerializer(serializers.ModelSerializer):
 class CreateTagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tags
-        fields = ['tag_name']
+        fields = ['tag_id', 'tag_name']
 
     def create(self, validated_data):
         tag = Tags.objects.create(
