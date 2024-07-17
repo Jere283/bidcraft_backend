@@ -361,9 +361,13 @@ class GetAllAuctionsbyTag(GenericAPIView):
         # Buscar todos los tags que empiecen con esas tres letras
         matching_tags = Tags.objects.filter(tag_name__istartswith=prefix)
         tags = CreateTagSerializer(matching_tags, many=True)
+        auctions_res = []
+        for tag in tags.data:
 
-        auction_tags = AuctionsTags.objects.filter(tag=tags[0].tag_id)
-        auctions = [at.auction for at in auction_tags]
-        serializer = GetAuctionSerializer(auctions, many=True)
+            auction_tags = AuctionsTags.objects.filter(tag=tag['tag_id'])
+            auctions = [at.auction for at in auction_tags]
+            serializer = GetAuctionSerializer(auctions, many=True)
+            if len(serializer.data) > 0:
+                auctions_res.append(serializer.data)
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(auctions_res, status=status.HTTP_200_OK)
