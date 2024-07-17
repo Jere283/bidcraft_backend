@@ -5,6 +5,7 @@ from .models import Category, Auction, Favorites, User, Tags, AuctionsTags
 from .serializers import CategorySerializer, CreateAuctionSerializer, CreateFavoritesSerializer, GetAuctionSerializer, \
     GetFavoriteSerializer, CreateImageForAuctionSerializer, CreateTagSerializer, AuctionsTagsSerializer, \
     TagSerializer, AuctionSerializer
+from rest_framework.permissions import IsAuthenticated
 
 
 class CreateCategoryView(GenericAPIView):
@@ -259,6 +260,20 @@ class FindTagsView(GenericAPIView):
         serializer = CreateTagSerializer(matching_tags, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class GetAuctionsByUser(GenericAPIView):
+
+    serializer_class = GetAuctionSerializer
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        user = request.user
+        auctions = Auction.objects.filter(seller=user)
+        serializer = self.serializer_class(auctions, many=True)
+
+        if auctions.exists():
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response({'error': 'El usuario no tiene subastas'}, status=status.HTTP_404_NOT_FOUND)
 
 
 class CreateAuctionTagView(GenericAPIView):
