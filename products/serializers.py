@@ -1,7 +1,7 @@
 
 from django.utils import timezone
 from rest_framework import serializers
-from .models import Category, Auction, Favorites, Status, AuctionImage, Tags
+from .models import Category, Auction, Favorites, Status, AuctionImage, Tags, AuctionsTags
 from users.models import User
 from users.serializers import LoginSerializer, UserRegisterSerializer
 
@@ -147,4 +147,22 @@ class CreateTagSerializer(serializers.ModelSerializer):
             tag_name=validated_data['tag_name']
         )
         return tag
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tags
+        fields = ['tag_id', 'tag_name']
+
+class AuctionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Auction
+        fields = ['auction_id']
+
+class AuctionsTagsSerializer(serializers.ModelSerializer):
+    tag = serializers.PrimaryKeyRelatedField(queryset=Tags.objects.all())
+    auction = serializers.PrimaryKeyRelatedField(queryset=Auction.objects.all())
+
+    class Meta:
+        model = AuctionsTags
+        fields = ['auction_tags_id', 'tag', 'auction']
 

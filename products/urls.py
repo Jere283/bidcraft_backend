@@ -2,7 +2,8 @@ from django.urls import path, include
 
 from .views import CreateCategoryView, CreateAuctionView, CreateFavoritesView, GetAuctionView, GetFavoriteView, \
     CheckFavoriteView, AuctionFavoriteCountView, GetSingleAuctionView, DeleteFavoriteUserAuction, GetAuctionByCategory, \
-    CreateImageForAuction, FindTagsView, GetTagView, CreateTagView, DeleteTagsView
+    CreateImageForAuction, FindTagsView, GetTagView, CreateTagView, DeleteTagsView, CreateAuctionTagView, \
+    TagsByAuctionView, AuctionsByTagView
 
 urlpatterns = [
     #CATEGORIAS
@@ -20,9 +21,12 @@ urlpatterns = [
     path('auction/image/add', CreateImageForAuction.as_view(), name='add-image-auction'),
     #TAGS
     path('tags/show/all/', GetTagView.as_view(), name='show_tags'),
-    path('tags/create/one/', CreateTagView.as_view(), name='create_tags'),
+    path('tags/post/one/', CreateTagView.as_view(), name='create_tags'),
     path('tags/delete/one/<int:pk>/', DeleteTagsView.as_view(), name='delete_tags'),
     path('tags/find/one/<str:tag_name>/', FindTagsView.as_view(), name='find_tags'),
+    path('tags/create/<int:auction_id>/', CreateAuctionTagView.as_view(), name='create_auction_tag'),
+    path('tags/by-auction/<int:auction_id>/', TagsByAuctionView.as_view(), name='tags_by_auction'),
+    path('auctions/by-tag/<int:tag_id>/', AuctionsByTagView.as_view(), name='auctions_by_tag'),
     #FAVORITOS
     path('favorites/show/all/', GetFavoriteView.as_view(), name='show_favorites_products'),
     path('favorites/create/one/', CreateFavoritesView.as_view(), name='create_favorites_product'),

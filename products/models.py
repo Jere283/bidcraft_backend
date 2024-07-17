@@ -87,3 +87,12 @@ class Tags(models.Model):
     class Meta:
         managed = False
         db_table = 'tags'
+
+class AuctionsTags(models.Model):
+    auction_tags_id = models.AutoField(primary_key=True)
+    tag = models.ForeignKey('Tags', models.DO_NOTHING, blank=True, null=True)
+    auction = models.ForeignKey(Auction, models.DO_NOTHING, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'auctions_tags'

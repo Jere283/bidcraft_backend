@@ -1,9 +1,10 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView, get_object_or_404
-from .models import Category, Auction, Favorites, User, Tags
+from .models import Category, Auction, Favorites, User, Tags, AuctionsTags
 from .serializers import CategorySerializer, CreateAuctionSerializer, CreateFavoritesSerializer, GetAuctionSerializer, \
-    GetFavoriteSerializer, CreateImageForAuctionSerializer, CreateTagSerializer
+    GetFavoriteSerializer, CreateImageForAuctionSerializer, CreateTagSerializer, AuctionsTagsSerializer, \
+    TagSerializer, AuctionSerializer
 
 
 class CreateCategoryView(GenericAPIView):
@@ -257,4 +258,60 @@ class FindTagsView(GenericAPIView):
         matching_tags = Tags.objects.filter(tag_name__istartswith=prefix)
         serializer = CreateTagSerializer(matching_tags, many=True)
 
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class CreateAuctionTagView(GenericAPIView):
+    def post(self, request, auction_id):
+        # Obtener el nombre del tag de los datos de la solicitud y convertir a minúsculas
+        tag_name = request.data.get('tag_name', '').lower()
+
+        # Verificar si el nombre del tag está presente en los datos de la solicitud
+        if not tag_name:
+            return Response({'error': 'El nombre del tag es requerido.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Verificar si ya existe el tag
+        existing_tag = Tags.objects.filter(tag_name=tag_name).first()
+        if existing_tag:
+            return Response({
+                'message': 'El tag ya existe.',
+                'tag_id': existing_tag.tag_id,
+                'tag_name': existing_tag.tag_name
+            }, status=status.HTTP_409_CONFLICT)
+
+        # Crear un nuevo tag si no existe uno con el mismo nombre exacto
+        tag_serializer = CreateTagSerializer(data={'tag_name': tag_name})
+        if tag_serializer.is_valid():
+            tag = tag_serializer.save()
+            auction = get_object_or_404(Auction, pk=auction_id)
+
+            # Crear la relación AuctionsTags
+            auction_tag_serializer = AuctionsTagsSerializer(data={'tag': tag.tag_id, 'auction': auction.auction_id})
+            if auction_tag_serializer.is_valid():
+                auction_tag_serializer.save()
+                return Response({
+                    'message': 'Tag creado exitosamente y relacionado con la subasta',
+                    'auction_tag': auction_tag_serializer.data
+                }, status=status.HTTP_201_CREATED)
+            else:
+                return Response(auction_tag_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(tag_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# Vista para obtener todos los tags asociados a una subasta
+class TagsByAuctionView(GenericAPIView):
+    def get(self, request, auction_id):
+        auction = get_object_or_404(Auction, pk=auction_id)
+        auction_tags = AuctionsTags.objects.filter(auction=auction)
+        tags = [at.tag for at in auction_tags]
+        serializer = TagSerializer(tags, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+# Vista para obtener todas las subastas asociadas a un tag
+class AuctionsByTagView(GenericAPIView):
+    def get(self, request, tag_id):
+        tag = get_object_or_404(Tags, pk=tag_id)
+        auction_tags = AuctionsTags.objects.filter(tag=tag)
+        auctions = [at.auction for at in auction_tags]
+        serializer = AuctionSerializer(auctions, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
