@@ -17,17 +17,28 @@ class StatusSerializer(serializers.ModelSerializer):
         model = Status
         fields = ('status_id', 'name')
 
+class GetAuctionImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AuctionImage
+        fields = ('image_id', 'image_url')
+
 
 class GetAuctionSerializer(serializers.ModelSerializer):
     seller = UserRegisterSerializer()
     category = CategorySerializer()
     winner = UserRegisterSerializer()
+    images = GetAuctionImageSerializer(many=True, source='auctionimage_set')
 
     class Meta:
         model = Auction
         fields = ('auction_id', 'seller', 'name', 'description', 'starting_price', 'buy_it_now_price',
                   'category', 'date_listed', 'is_active', 'highest_bid', 'start_time', 'end_time', 'winner',
-                  )
+                  'images')
+
+    # Include any extra methods if necessary, for example:
+    def get_images(self, obj):
+        images = AuctionImage.objects.filter(auction=obj)
+        return GetAuctionImageSerializer(images, many=True).data
 
 
 class CreateAuctionSerializer(serializers.ModelSerializer):
@@ -73,11 +84,11 @@ class CreateAuctionSerializer(serializers.ModelSerializer):
             name=validated_data['name'],
             description=validated_data.get('description', ''),
             starting_price=validated_data.get('starting_price'),
+            highest_bid=validated_data.get('starting_price'),
             buy_it_now_price=validated_data.get('buy_it_now_price'),
             category=validated_data.get('category'),
             date_listed=validated_data.get('date_listed',  timezone.now()),
             is_active=validated_data.get('is_active', True),
-            highest_bid=validated_data.get('highest_bid', None),
             start_time=validated_data.get('start_time', timezone.now()),
             end_time=validated_data.get('end_time', None),
         )
