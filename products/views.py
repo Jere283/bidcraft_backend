@@ -73,6 +73,9 @@ class CreateAuctionView(GenericAPIView):
                 # Eliminar todas las referencias de favorites asociadas a esta subasta
                 Favorites.objects.filter(auction=auction).delete()
                 auction.delete()
+                # Eliminar todas las referencias de auction_images asociadas a esta subasta
+                #AuctionImages.objects.filter(auction=auction).delete()
+                #auction.delete()
             return Response({
                 'message': "La subasta fue borrada de forma correcta"
             }, status=status.HTTP_204_NO_CONTENT)
