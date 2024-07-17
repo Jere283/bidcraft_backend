@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView, get_object_or_404
@@ -65,13 +66,16 @@ class CreateAuctionView(GenericAPIView):
 
     def delete(self, request, pk):
         try:
-            product = Auction.objects.get(pk=pk)
-            product.delete()
+            with transaction.atomic():
+                auction = get_object_or_404(Auction, pk=pk)
+                # Eliminar todas las referencias de auctions_tags asociadas a esta subasta
+                AuctionsTags.objects.filter(auction=auction).delete()
+                auction.delete()
             return Response({
                 'message': "La subasta fue borrada de forma correcta"
             }, status=status.HTTP_204_NO_CONTENT)
         except Auction.DoesNotExist:
-            return Response({'error': 'Subasta no econtrada'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'Subasta no encontrada'}, status=status.HTTP_404_NOT_FOUND)
 
     def patch(self, request, pk):
         product = get_object_or_404(Auction, pk=pk)
