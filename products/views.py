@@ -70,12 +70,16 @@ class CreateAuctionView(GenericAPIView):
                 auction = get_object_or_404(Auction, pk=pk)
                 # Eliminar todas las referencias de auctions_tags asociadas a esta subasta
                 AuctionsTags.objects.filter(auction=auction).delete()
+                # Eliminar todas las referencias de favorites asociadas a esta subasta
+                Favorites.objects.filter(auction=auction).delete()
                 auction.delete()
             return Response({
                 'message': "La subasta fue borrada de forma correcta"
             }, status=status.HTTP_204_NO_CONTENT)
         except Auction.DoesNotExist:
             return Response({'error': 'Subasta no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request, pk):
         product = get_object_or_404(Auction, pk=pk)
