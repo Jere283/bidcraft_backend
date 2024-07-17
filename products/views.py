@@ -2,7 +2,7 @@ from django.db import transaction
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView, get_object_or_404
-from .models import Category, Auction, Favorites, User, Tags, AuctionsTags
+from .models import Category, Auction, Favorites, User, Tags, AuctionsTags, AuctionImage
 from .serializers import CategorySerializer, CreateAuctionSerializer, CreateFavoritesSerializer, GetAuctionSerializer, \
     GetFavoriteSerializer, CreateImageForAuctionSerializer, CreateTagSerializer, AuctionsTagsSerializer, \
     TagSerializer, AuctionSerializer
@@ -72,10 +72,10 @@ class CreateAuctionView(GenericAPIView):
                 AuctionsTags.objects.filter(auction=auction).delete()
                 # Eliminar todas las referencias de favorites asociadas a esta subasta
                 Favorites.objects.filter(auction=auction).delete()
-                auction.delete()
+
                 # Eliminar todas las referencias de auction_images asociadas a esta subasta
-                #AuctionImages.objects.filter(auction=auction).delete()
-                #auction.delete()
+                AuctionImage.objects.filter(auction=auction).delete()
+                auction.delete()
             return Response({
                 'message': "La subasta fue borrada de forma correcta"
             }, status=status.HTTP_204_NO_CONTENT)
