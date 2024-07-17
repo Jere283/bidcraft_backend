@@ -299,11 +299,18 @@ class CreateAuctionTagView(GenericAPIView):
         # Verificar si ya existe el tag
         existing_tag = Tags.objects.filter(tag_name=tag_name).first()
         if existing_tag:
-            return Response({
-                'message': 'El tag ya existe.',
-                'tag_id': existing_tag.tag_id,
-                'tag_name': existing_tag.tag_name
-            }, status=status.HTTP_409_CONFLICT)
+            auction = get_object_or_404(Auction, pk=auction_id)
+
+            # Crear la relación AuctionsTags
+            auction_tag_serializer = AuctionsTagsSerializer(data={'tag': existing_tag.tag_id, 'auction': auction.auction_id})
+            if auction_tag_serializer.is_valid():
+                auction_tag_serializer.save()
+                return Response({
+                    'message': 'Tag relacionado con la subasta',
+                    'auction_tag': auction_tag_serializer.data
+                }, status=status.HTTP_201_CREATED)
+            else:
+                return Response(auction_tag_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         # Crear un nuevo tag si no existe uno con el mismo nombre exacto
         tag_serializer = CreateTagSerializer(data={'tag_name': tag_name})
