@@ -84,11 +84,11 @@ class CreateAuctionSerializer(serializers.ModelSerializer):
             name=validated_data['name'],
             description=validated_data.get('description', ''),
             starting_price=validated_data.get('starting_price'),
+            highest_bid=validated_data.get('starting_price'),
             buy_it_now_price=validated_data.get('buy_it_now_price'),
             category=validated_data.get('category'),
             date_listed=validated_data.get('date_listed',  timezone.now()),
             is_active=validated_data.get('is_active', True),
-            highest_bid=validated_data.get('highest_bid', None),
             start_time=validated_data.get('start_time', timezone.now()),
             end_time=validated_data.get('end_time', None),
         )
