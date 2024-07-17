@@ -7,6 +7,7 @@ from .serializers import CategorySerializer, CreateAuctionSerializer, CreateFavo
     GetFavoriteSerializer, CreateImageForAuctionSerializer, CreateTagSerializer, AuctionsTagsSerializer, \
     TagSerializer, AuctionSerializer
 from rest_framework.permissions import IsAuthenticated
+from bids.models import Bids
 
 
 class CreateCategoryView(GenericAPIView):
@@ -72,6 +73,8 @@ class CreateAuctionView(GenericAPIView):
                 AuctionsTags.objects.filter(auction=auction).delete()
                 # Eliminar todas las referencias de favorites asociadas a esta subasta
                 Favorites.objects.filter(auction=auction).delete()
+
+                Bids.objects.filter(auction=auction).delete()
 
                 # Eliminar todas las referencias de auction_images asociadas a esta subasta
                 AuctionImage.objects.filter(auction=auction).delete()
@@ -347,4 +350,20 @@ class AuctionsByTagView(GenericAPIView):
         auction_tags = AuctionsTags.objects.filter(tag=tag)
         auctions = [at.auction for at in auction_tags]
         serializer = AuctionSerializer(auctions, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class GetAllAuctionsbyTag(GenericAPIView):
+    def get(self, request, tag_name):
+        # Tomar las primeras tres letras del tag_name y convertir a minúsculas
+        prefix = tag_name[:3].lower()
+
+        # Buscar todos los tags que empiecen con esas tres letras
+        matching_tags = Tags.objects.filter(tag_name__istartswith=prefix)
+        tags = CreateTagSerializer(matching_tags, many=True)
+
+        auction_tags = AuctionsTags.objects.filter(tag=tags[0].tag_id)
+        auctions = [at.auction for at in auction_tags]
+        serializer = GetAuctionSerializer(auctions, many=True)
+
         return Response(serializer.data, status=status.HTTP_200_OK)
