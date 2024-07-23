@@ -6,3 +6,9 @@
 .idea/misc.xml
 .idea/auction.iml
 
+.DS_Store
+bids/__pycache__/
+bids/migrations/__pycache__/
+products/migrations/__pycache__/
+users/migrations/__pycache__/
+venv/
