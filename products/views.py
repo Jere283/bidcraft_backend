@@ -10,13 +10,16 @@ from rest_framework.permissions import IsAuthenticated
 from bids.models import Bids
 
 
-class CreateCategoryView(GenericAPIView):
+class GetCatergoryView(GenericAPIView):
     serializer_class = CategorySerializer
-
     def get(self, request):
         categories = Category.objects.all()
         serializer = self.serializer_class(categories, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class CreateCategoryView(GenericAPIView):
+    serializer_class = CategorySerializer
 
     def post(self, request):
         category_data = request.data
@@ -30,6 +33,8 @@ class CreateCategoryView(GenericAPIView):
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class DeleteCategoryView(GenericAPIView):
     def delete(self, request, pk):
         try:
             category = Category.objects.get(pk=pk)
@@ -49,22 +54,7 @@ class GetAuctionView(GenericAPIView):
         serializer = self.serializer_class(products, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-
-class CreateAuctionView(GenericAPIView):
-    serializer_class = CreateAuctionSerializer
-
-    def post(self, request):
-        product_data = request.data
-        serializer = self.serializer_class(data=product_data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            product_data = serializer.data
-            return Response({
-                'data': product_data,
-                'message': "La subasta fue creada de manera exitosa"
-            }, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+class DeleteAuctionView(GenericAPIView):
     def delete(self, request, pk):
         try:
             with transaction.atomic():
@@ -86,6 +76,22 @@ class CreateAuctionView(GenericAPIView):
             return Response({'error': 'Subasta no encontrada'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CreateAuctionView(GenericAPIView):
+    serializer_class = CreateAuctionSerializer
+
+    def post(self, request):
+        product_data = request.data
+        serializer = self.serializer_class(data=product_data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            product_data = serializer.data
+            return Response({
+                'data': product_data,
+                'message': "La subasta fue creada de manera exitosa"
+            }, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request, pk):
         product = get_object_or_404(Auction, pk=pk)
