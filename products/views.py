@@ -93,6 +93,7 @@ class CreateAuctionView(GenericAPIView):
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class EditAuctionView(GenericAPIView):
     def patch(self, request, pk):
         product = get_object_or_404(Auction, pk=pk)
         serializer = self.serializer_class(instance=product, data=request.data, partial=True)

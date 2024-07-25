@@ -4,7 +4,7 @@ from .views import CreateCategoryView, CreateAuctionView, CreateFavoritesView, G
     CheckFavoriteView, AuctionFavoriteCountView, GetSingleAuctionView, DeleteFavoriteUserAuction, GetAuctionByCategory, \
     CreateImageForAuction, FindTagsView, GetTagView, CreateTagView, DeleteTagsView, CreateAuctionTagView, \
     TagsByAuctionView, AuctionsByTagView, GetAuctionsByUser, GetAllAuctionsbyTag, GetCatergoryView, DeleteCategoryView, \
-    DeleteAuctionView
+    DeleteAuctionView, EditAuctionView
 
 urlpatterns = [
     #CATEGORIAS
@@ -14,7 +14,7 @@ urlpatterns = [
     #SUBASTAS
     path('auction/show/all/', GetAuctionView.as_view(), name='show_products'),
     path('auction/create/one/', CreateAuctionView.as_view(), name='create_products'),
-    path('auction/edit/one/<int:pk>/', CreateAuctionView.as_view(), name='edit_products'),
+    path('auction/edit/one/<int:pk>/', EditAuctionView.as_view(), name='edit_products'),
     path('auction/delete/one/<int:pk>/',  DeleteAuctionView.as_view(), name='delete_products'),  # URL para PUT y DELETE
     path('auction/show/all/category/<int:category_id>/', GetAuctionByCategory.as_view(), name='show_products_by_category'),
     path('auction/favorite/count/<int:auction_id>/', AuctionFavoriteCountView.as_view(), name='auction-favorite-count'),
