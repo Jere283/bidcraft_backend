@@ -35,6 +35,7 @@ class CreateCategoryView(GenericAPIView):
 
 
 class DeleteCategoryView(GenericAPIView):
+    serializer_class = CategorySerializer
     def delete(self, request, pk):
         try:
             category = Category.objects.get(pk=pk)
@@ -55,6 +56,7 @@ class GetAuctionView(GenericAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class DeleteAuctionView(GenericAPIView):
+    serializer_class = CreateAuctionSerializer
     def delete(self, request, pk):
         try:
             with transaction.atomic():
@@ -94,6 +96,7 @@ class CreateAuctionView(GenericAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class EditAuctionView(GenericAPIView):
+    serializer_class = CreateAuctionSerializer
     def patch(self, request, pk):
         product = get_object_or_404(Auction, pk=pk)
         serializer = self.serializer_class(instance=product, data=request.data, partial=True)
@@ -137,6 +140,10 @@ class CreateFavoritesView(GenericAPIView):
                 'message': "Favorito creado!"
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class DeleteFavoriteView(GenericAPIView):
+    serializer_class = CreateFavoritesSerializer
 
     def delete(self, request, pk):
         try:
