@@ -1,1 +1,1 @@
-web: gunicorn auction.wsgi
+web: python manage.py collectstatic && gunicorn auction.wsgi
