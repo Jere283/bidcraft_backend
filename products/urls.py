@@ -32,9 +32,9 @@ urlpatterns = [
     path('auctions/tag/<int:tag_id>/', AuctionsByTagView.as_view(), name='auctions_by_tag'),
     #FAVORITOS
     path('favorites/show/all/', GetFavoriteView.as_view(), name='show_favorites_products'),
-    path('favorites/create/one/', CreateFavoritesView.as_view(), name='create_favorites_product'),
+    path('favorites/auction/<int:auction_id>/', CreateFavoritesView.as_view(), name='create_favorites_product'),
     path('favorites/delete/one/<int:pk>/', CreateFavoritesView.as_view(), name='delete_favorites_products'),
-    path('favorites/user/<str:pk>/', GetFavoriteView.as_view(), name='favorites_byUser_products'),
-    path('favorites/<str:user_id>/<int:auction_id>/', CheckFavoriteView.as_view(), name='check-favorite'),
-    path('favorites/delete/one/<str:user_id>/<int:auction_id>/',DeleteFavoriteUserAuction.as_view(), name='check-del-favorite'),
+    path('favorites/user/', GetFavoriteView.as_view(), name='favorites_byUser_products'),
+    path('favorites/check/<int:auction_id>/', CheckFavoriteView.as_view(), name='check-favorite'),
+    path('favorites/delete/one/auction/<int:auction_id>/',DeleteFavoriteUserAuction.as_view(), name='check-del-favorite'),
 ]

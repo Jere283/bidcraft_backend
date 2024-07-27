@@ -10,6 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 from bids.models import Bids
 
 
+
 class GetCatergoryView(GenericAPIView):
     serializer_class = CategorySerializer
     def get(self, request):
@@ -108,11 +109,12 @@ class EditAuctionView(GenericAPIView):
 
 class GetFavoriteView(GenericAPIView):
     serializer_class = GetFavoriteSerializer
+    permission_classes = [IsAuthenticated]
 
-    def get(self, request, pk=None):
+    def get(self, request):
         try:
-            if pk is not None:
-                favorites = Favorites.objects.filter(user=pk)
+            if request.user:
+                favorites = Favorites.objects.filter(user=request.user.id)
             else:
                 favorites = Favorites.objects.all()
 
@@ -127,11 +129,16 @@ class GetFavoriteView(GenericAPIView):
 
 
 class CreateFavoritesView(GenericAPIView):
+    permission_classes = [IsAuthenticated]
     serializer_class = CreateFavoritesSerializer
 
-    def post(self, request):
+    def post(self, request, auction_id):
+        auction = get_object_or_404(Auction, pk=auction_id)
         favorite_data = request.data
-        serializer = self.serializer_class(data=favorite_data)
+        serializer = self.serializer_class(
+            data=favorite_data,
+            context={'request': request, 'auction':auction}
+        )
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             favorite_data = serializer.data
@@ -158,16 +165,17 @@ class DeleteFavoriteView(GenericAPIView):
 
 class CheckFavoriteView(GenericAPIView):
 
-    def get(self, request, user_id, auction_id):
-        favorite_exists = Favorites.objects.filter(user=user_id, auction=auction_id).exists()
+    def get(self, request, auction_id):
+        favorite_exists = Favorites.objects.filter(user=request.user.id, auction=auction_id).exists()
 
         return Response({'exists': favorite_exists}, status=status.HTTP_200_OK)
 
 
 class DeleteFavoriteUserAuction(GenericAPIView):
+    permission_classes = [IsAuthenticated]
 
-    def delete(self, request, user_id, auction_id):
-        favorite = Favorites.objects.filter(user=user_id, auction=auction_id)
+    def delete(self, request, auction_id):
+        favorite = Favorites.objects.filter(user=request.user.id, auction=auction_id)
 
         if favorite.exists():
             favorite.delete()
@@ -216,6 +224,7 @@ class GetAuctionByCategory(GenericAPIView):
 
 
 class CreateImageForAuction(GenericAPIView):
+    
     serializer_class = CreateImageForAuctionSerializer
 
     def post(self, request):
@@ -232,12 +241,14 @@ class CreateImageForAuction(GenericAPIView):
 
 
 class GetTagView(GenericAPIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         tags = Tags.objects.all()
         serializer = CreateTagSerializer(tags, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class CreateTagView(GenericAPIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         # Obtener el nombre del tag de los datos de la solicitud y capitalizar la primera letra
         tag_name = request.data.get('tag_name', '').lower()
@@ -269,6 +280,7 @@ class CreateTagView(GenericAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class DeleteTagsView(GenericAPIView):
+    permission_classes = [IsAuthenticated]
     def delete(self, request, pk):
         try:
             tag = Tags.objects.get(pk=pk)
@@ -279,6 +291,7 @@ class DeleteTagsView(GenericAPIView):
         return Response({'message': 'Tag eliminado exitosamente'}, status=status.HTTP_204_NO_CONTENT)
 
 class FindTagsView(GenericAPIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request, tag_name):
         # Tomar las primeras tres letras del tag_name y convertir a minúsculas
         prefix = tag_name[:3].lower()
@@ -305,6 +318,7 @@ class GetAuctionsByUser(GenericAPIView):
 
 
 class CreateAuctionTagView(GenericAPIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request, auction_id):
         # Obtener el nombre del tag de los datos de la solicitud y convertir a minúsculas
         tag_name = request.data.get('tag_name', '').lower()
@@ -350,6 +364,7 @@ class CreateAuctionTagView(GenericAPIView):
 
 # Vista para obtener todos los tags asociados a una subasta
 class TagsByAuctionView(GenericAPIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request, auction_id):
         auction = get_object_or_404(Auction, pk=auction_id)
         auction_tags = AuctionsTags.objects.filter(auction=auction)
@@ -359,6 +374,7 @@ class TagsByAuctionView(GenericAPIView):
 
 # Vista para obtener todas las subastas asociadas a un tag
 class AuctionsByTagView(GenericAPIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request, tag_id):
         tag = get_object_or_404(Tags, pk=tag_id)
         auction_tags = AuctionsTags.objects.filter(tag=tag)
@@ -368,6 +384,7 @@ class AuctionsByTagView(GenericAPIView):
 
 
 class GetAllAuctionsbyTag(GenericAPIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request, tag_name):
         # Tomar las primeras tres letras del tag_name y convertir a minúsculas
         prefix = tag_name[:3].lower()
