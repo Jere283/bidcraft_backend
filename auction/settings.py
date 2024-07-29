@@ -125,6 +125,7 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',  # Example: Your frontend domain
     'https://example.com',
     'https://bidcraft.netlify.com',
+    'https://bidcraft.netlify.app/',
 ]
 
 
