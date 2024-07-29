@@ -92,7 +92,8 @@ DATABASES = {
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',  # Example: Your frontend domain
-    'https://example.com',    # Another example domain
+    'https://example.com',
+    'https://bidcraft.netlify.com',
 ]
 
 
