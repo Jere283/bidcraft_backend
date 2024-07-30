@@ -128,3 +128,24 @@ class UpdateUsersKycStatusView(UpdateAPIView):
         # Devuelve los datos actualizados
         serializer = self.serializer_class(user_kyc)
         return Response(serializer.data)
+
+class UsersKycDetailByUserIdView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, user_id):
+        try:
+            user_kyc = UsersKyc.objects.get(user__id=user_id)
+        except UsersKyc.DoesNotExist:
+            raise NotFound(detail="No UsersKyc matches the given query.")
+        serializer = UsersKycSerializer(user_kyc)
+        return Response(serializer.data)
+
+class UsersKycDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user_kyc = UsersKyc.objects.filter(user=request.user).first()
+        if not user_kyc:
+            raise NotFound(detail="No UsersKyc matches the given query.")
+        serializer = UsersKycSerializer(user_kyc)
+        return Response(serializer.data)
