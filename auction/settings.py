@@ -119,6 +119,12 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',)
 }
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
+}
+
 
 EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
 EMAIL_HOST_USER = '1183297cd80e67'
@@ -129,7 +135,7 @@ EMAIL_USE_TLS = True
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
     'https://bidcraft.netlify.app',
-    'https://bidcraft.netlify.app'
+    'https://bidcraft.netlify.app',
 ]
 
 # Password validation
@@ -177,6 +183,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-ALLOWED_HOSTS = ['localhost','web-production-d0bab.up.railway.app']
+ALLOWED_HOSTS = ['localhost','web-production-d0bab.up.railway.app', '127.0.0.1']
 
 CSRF_TRUSTED_ORIGINS = ['http://*','https://web-production-d0bab.up.railway.app']
