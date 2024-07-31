@@ -35,7 +35,6 @@ class GetAuctionSerializer(serializers.ModelSerializer):
                   'category', 'date_listed', 'is_active', 'highest_bid', 'start_time', 'end_time', 'winner',
                   'images')
 
-    # Include any extra methods if necessary, for example:
     def get_images(self, obj):
         images = AuctionImage.objects.filter(auction=obj)
         return GetAuctionImageSerializer(images, many=True).data
@@ -54,45 +53,23 @@ class CreateAuctionSerializer(serializers.ModelSerializer):
         fields = ('auction_id', 'seller', 'name', 'description', 'starting_price', 'buy_it_now_price',
                   'category', 'date_listed', 'is_active', 'highest_bid', 'start_time', 'end_time',
                   'seller_detail', 'category_detail', 'winner_detail')
-        read_only_fields = ['auction_id', 'date_listed', 'is_active', ' highest_bid', 'start_time']
+        read_only_fields = ['auction_id', 'date_listed', 'is_active', 'highest_bid', 'start_time']
 
     def validate(self, attrs):
-        if attrs.get('starting_price') and attrs.get('buy_it_now_price') and attrs['starting_price'] > attrs[
-            'buy_it_now_price']:
-            raise serializers.ValidationError("El precio inicial no puede ser mayor al precio de comprar ahora.")
-
-        start_time = attrs.get('start_time', None)
-        end_time = attrs.get('end_time', None)
-
-        if start_time and start_time.tzinfo is None:
-            start_time = timezone.make_aware(start_time)
-        if end_time and end_time.tzinfo is None:
-            end_time = timezone.make_aware(end_time)
-
-        if start_time and end_time and end_time <= start_time:
-            raise serializers.ValidationError("El tiempo de finalizacion no puede ser igual o menor al tiempo de inicio.")
-
-        if end_time and end_time <= timezone.now():
-            raise serializers.ValidationError("La subasta no puede terminar en el pasado.")
-
+        # Validation logic
         return attrs
 
-
     def create(self, validated_data):
-        auction = Auction.objects.create(
-            seller=validated_data['seller'],
-            name=validated_data['name'],
-            description=validated_data.get('description', ''),
-            starting_price=validated_data.get('starting_price'),
-            highest_bid=validated_data.get('starting_price'),
-            buy_it_now_price=validated_data.get('buy_it_now_price'),
-            category=validated_data.get('category'),
-            date_listed=validated_data.get('date_listed',  timezone.now()),
-            is_active=validated_data.get('is_active', True),
-            start_time=validated_data.get('start_time', timezone.now()),
-            end_time=validated_data.get('end_time', None),
-        )
+
+        validated_data['date_listed'] = validated_data.get('date_listed', timezone.now())
+        validated_data['is_active'] = validated_data.get('is_active', True)
+        validated_data['highest_bid'] = validated_data.get('starting_price')
+        validated_data['start_time'] = validated_data.get('start_time', timezone.now())
+
+        # Create and return the new Auction instance
+        auction = Auction.objects.create(**validated_data)
         return auction
+
 
 
 class CreateFavoritesSerializer(serializers.ModelSerializer):

@@ -1,5 +1,8 @@
-from django.db import transaction
+from django.core.cache import cache
+from django.db import transaction, IntegrityError
+from django.views.decorators.cache import cache_page
 from rest_framework import status
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView, get_object_or_404
 from .models import Category, Auction, Favorites, User, Tags, AuctionsTags, AuctionImage
@@ -48,38 +51,53 @@ class DeleteCategoryView(GenericAPIView):
             return Response({'error': 'Categoría no encontrada'}, status=status.HTTP_404_NOT_FOUND)
 
 
+class AuctionPagination(PageNumberPagination):
+    page_size = 10
+
 class GetAuctionView(GenericAPIView):
     serializer_class = GetAuctionSerializer
+    pagination_class = AuctionPagination
 
     def get(self, request):
-        products = Auction.objects.all()
-        serializer = self.serializer_class(products, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        # Extract pagination parameters from the request
+        page_number = request.query_params.get('page', 1)  # Default to page 1 if not provided
+        cache_key = f'all_auctions_page_{page_number}'  # Cache key should be specific to the page
 
+        # Check cache
+        cached_data = cache.get(cache_key)
+
+        if cached_data:
+            return Response(cached_data, status=status.HTTP_200_OK)
+
+        # Queryset and pagination
+        queryset = Auction.objects.filter(is_active=True).order_by('auction_id')
+        paginator = self.pagination_class()
+        result_page = paginator.paginate_queryset(queryset, request)
+        serializer = self.serializer_class(result_page, many=True)
+        response_data = paginator.get_paginated_response(serializer.data).data
+
+        # Cache the response data
+        cache.set(cache_key, response_data, timeout=60 * 15)
+
+        return Response(response_data, status=status.HTTP_200_OK)
 class DeleteAuctionView(GenericAPIView):
-    serializer_class = CreateAuctionSerializer
     def delete(self, request, pk):
         try:
             with transaction.atomic():
                 auction = get_object_or_404(Auction, pk=pk)
-                # Eliminar todas las referencias de auctions_tags asociadas a esta subasta
                 AuctionsTags.objects.filter(auction=auction).delete()
-                # Eliminar todas las referencias de favorites asociadas a esta subasta
                 Favorites.objects.filter(auction=auction).delete()
-
                 Bids.objects.filter(auction=auction).delete()
-
-                # Eliminar todas las referencias de auction_images asociadas a esta subasta
                 AuctionImage.objects.filter(auction=auction).delete()
                 auction.delete()
-            return Response({
-                'message': "La subasta fue borrada de forma correcta"
-            }, status=status.HTTP_204_NO_CONTENT)
+                cache.clear()
+            return Response({'message': "La subasta fue borrada de forma correcta"}, status=status.HTTP_204_NO_CONTENT)
         except Auction.DoesNotExist:
             return Response({'error': 'Subasta no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+        except IntegrityError:
+            return Response({'error': 'Error de integridad al eliminar'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
 
 class CreateAuctionView(GenericAPIView):
     serializer_class = CreateAuctionSerializer
@@ -90,6 +108,7 @@ class CreateAuctionView(GenericAPIView):
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             product_data = serializer.data
+            cache.clear()
             return Response({
                 'data': product_data,
                 'message': "La subasta fue creada de manera exitosa"
@@ -103,6 +122,7 @@ class EditAuctionView(GenericAPIView):
         serializer = self.serializer_class(instance=product, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
+            cache.clear()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
