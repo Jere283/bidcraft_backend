@@ -70,7 +70,7 @@ class GetAuctionView(GenericAPIView):
             return Response(cached_data, status=status.HTTP_200_OK)
 
         # Queryset and pagination
-        queryset = Auction.objects.all().order_by('auction_id')  # Ensure proper ordering for pagination
+        queryset = Auction.objects.filter(is_active=True).order_by('auction_id')
         paginator = self.pagination_class()
         result_page = paginator.paginate_queryset(queryset, request)
         serializer = self.serializer_class(result_page, many=True)
