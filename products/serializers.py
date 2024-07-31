@@ -60,8 +60,16 @@ class CreateAuctionSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        # Create logic
-        return Auction.objects.create(**validated_data)
+
+        validated_data['date_listed'] = validated_data.get('date_listed', timezone.now())
+        validated_data['is_active'] = validated_data.get('is_active', True)
+        validated_data['highest_bid'] = validated_data.get('starting_price')
+        validated_data['start_time'] = validated_data.get('start_time', timezone.now())
+
+        # Create and return the new Auction instance
+        auction = Auction.objects.create(**validated_data)
+        return auction
+
 
 
 class CreateFavoritesSerializer(serializers.ModelSerializer):

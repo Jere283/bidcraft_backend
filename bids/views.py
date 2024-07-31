@@ -39,10 +39,17 @@ class MakeABid(GenericAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserCompletedAuctionsView(ListAPIView):
+class UserCompletedAuctionsView(GenericAPIView):
     serializer_class = CompletedAuctionSerializer
-    permission_classes = [IsAuthenticated]  # Ensure the user is authenticated
+    permission_classes = [IsAuthenticated]
 
-    def get_queryset(self):
-        user = self.request.user
-        return CompletedAuctions.objects.filter(buyer=user).order_by('completed_auction_id')
+    def get(self, request):
+        user = request.user
+        win_auctions = CompletedAuctions.objects.filter(buyer=user)
+        serializer = self.serializer_class(win_auctions, many=True)
+
+        if win_auctions.exists():
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response({'message': 'El usuario no tiene subastas ganadas'}, status=status.HTTP_200_OK)
+
