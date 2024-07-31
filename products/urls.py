@@ -3,18 +3,19 @@ from django.urls import path, include
 from .views import CreateCategoryView, CreateAuctionView, CreateFavoritesView, GetAuctionView, GetFavoriteView, \
     CheckFavoriteView, AuctionFavoriteCountView, GetSingleAuctionView, DeleteFavoriteUserAuction, GetAuctionByCategory, \
     CreateImageForAuction, FindTagsView, GetTagView, CreateTagView, DeleteTagsView, CreateAuctionTagView, \
-    TagsByAuctionView, AuctionsByTagView, GetAuctionsByUser, GetAllAuctionsbyTag
+    TagsByAuctionView, AuctionsByTagView, GetAuctionsByUser, GetAllAuctionsbyTag, GetCatergoryView, DeleteCategoryView, \
+    DeleteAuctionView, EditAuctionView
 
 urlpatterns = [
     #CATEGORIAS
-    path('categories/show/all/', CreateCategoryView.as_view(), name='show_category'),
+    path('categories/show/all/', GetCatergoryView.as_view(), name='show_category'),
     path('categories/create/one/', CreateCategoryView.as_view(), name='create_category'),
-    path('categories/delete/one/<int:pk>/', CreateCategoryView.as_view(), name='delete_category'),  # URL para DELETE
+    path('categories/delete/one/<int:pk>/', DeleteCategoryView.as_view(), name='delete_category'),  # URL para DELETE
     #SUBASTAS
     path('auction/show/all/', GetAuctionView.as_view(), name='show_products'),
     path('auction/create/one/', CreateAuctionView.as_view(), name='create_products'),
-    path('auction/edit/one/<int:pk>/', CreateAuctionView.as_view(), name='edit_products'),
-    path('auction/delete/one/<int:pk>/', CreateAuctionView.as_view(), name='delete_products'),  # URL para PUT y DELETE
+    path('auction/edit/one/<int:pk>/', EditAuctionView.as_view(), name='edit_products'),
+    path('auction/delete/one/<int:pk>/',  DeleteAuctionView.as_view(), name='delete_products'),  # URL para PUT y DELETE
     path('auction/show/all/category/<int:category_id>/', GetAuctionByCategory.as_view(), name='show_products_by_category'),
     path('auction/favorite/count/<int:auction_id>/', AuctionFavoriteCountView.as_view(), name='auction-favorite-count'),
     path('auction/show/one/<int:auction_id>/', GetSingleAuctionView.as_view(), name='get-single-auction'),
@@ -31,10 +32,10 @@ urlpatterns = [
     path('auctions/tag/<int:tag_id>/', AuctionsByTagView.as_view(), name='auctions_by_tag'),
     #FAVORITOS
     path('favorites/show/all/', GetFavoriteView.as_view(), name='show_favorites_products'),
-    path('favorites/create/one/', CreateFavoritesView.as_view(), name='create_favorites_product'),
+    path('favorites/auction/<int:auction_id>/', CreateFavoritesView.as_view(), name='create_favorites_product'),
     path('favorites/delete/one/<int:pk>/', CreateFavoritesView.as_view(), name='delete_favorites_products'),
-    path('favorites/user/<str:pk>/', GetFavoriteView.as_view(), name='favorites_byUser_products'),
-    path('favorites/<str:user_id>/<int:auction_id>/', CheckFavoriteView.as_view(), name='check-favorite'),
-    path('favorites/delete/one/<str:user_id>/<int:auction_id>/',DeleteFavoriteUserAuction.as_view(), name='check-del-favorite'),
-    #PRUEBAS
+    path('favorites/user/', GetFavoriteView.as_view(), name='favorites_byUser_products'),
+    path('favorites/check/<int:auction_id>/', CheckFavoriteView.as_view(), name='check-favorite'),
+    path('favorites/delete/one/auction/<int:auction_id>/',DeleteFavoriteUserAuction.as_view(), name='check-del-favorite'),
+
 ]

@@ -96,19 +96,17 @@ class CreateAuctionSerializer(serializers.ModelSerializer):
 
 
 class CreateFavoritesSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True)
-    auction = serializers.PrimaryKeyRelatedField(queryset=Auction.objects.all(), write_only=True)
 
-    user_detail = UserRegisterSerializer(source='user', read_only=True)
-    auction_detail = GetAuctionSerializer(source='auction', read_only=True)
+    user = UserRegisterSerializer( read_only=True)
+    auction = GetAuctionSerializer( read_only=True)
 
     class Meta:
         model = Favorites
-        fields = ['favorite_id', 'user', 'auction', 'date_added', 'user_detail', 'auction_detail']
+        fields = ['favorite_id', 'user', 'auction', 'date_added']
 
     def validate(self, attrs):
-        user = attrs.get('user')
-        auction = attrs.get('auction')
+        user = self.context['request'].user
+        auction = self.context['auction_id']
 
         if Favorites.objects.filter(user=user, auction=auction).exists():
             raise serializers.ValidationError("This favorite already exists.")
@@ -117,8 +115,8 @@ class CreateFavoritesSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         favorite =  Favorites.objects.create(
-            user=validated_data['user'],
-            auction=validated_data['auction'],
+            user=self.context['request'].user,
+            auction=self.context['auction_id'],
             date_added=timezone.now()
         )
 

@@ -11,6 +11,14 @@ class CreateBidSerializer(serializers.ModelSerializer):
         model = Bids
         fields = ['bid_amount', 'bid_time']
 
+    def validate(self, attrs):
+        auction = Auction.objects.get(auction_id=self.context['auction_id'])
+
+        if auction.is_active is False:
+            raise serializers.ValidationError("La subasta ya finalizo")
+
+        return attrs
+
     def create(self, validated_data):
         auction_id = self.context['auction_id']
         bid = Bids.objects.create(
