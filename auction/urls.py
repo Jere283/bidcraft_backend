@@ -22,6 +22,7 @@ urlpatterns = [
     path('api/', include('products.urls')),
     path('api/', include('bids.urls')),
     path('api/', include('kyc.urls')),
+    path('api/', include('payments.urls')),
     path('docs/', schema_view.with_ui('swagger', cache_timeout=0),name='schema-swagger-ui'),
 
 

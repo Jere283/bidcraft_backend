@@ -32,6 +32,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+STRIPE_SECRET_KEY = 'pk_test_51PhHbiRxcO9tjCUhJxboXMnZLh3rymdeQiU6imHTjMosmY11irfCMCz6qBgguAxNlsE2hdGSkVrIgTPt1QqxqV1p00pVynRNtg'
+STRIPE_PUBLISHABLE_KEY = 'sk_test_51PhHbiRxcO9tjCUh5aJpo0BOSXy9KbP1Tg9z3CO2bRJ5JVfOgQ1Al0cGZapzkRByxSDZtSlRQiuQ3eW4ZAclw6ar00rtvboxY6'
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -49,6 +52,7 @@ INSTALLED_APPS = [
     'products',
     'bids',
     'kyc',
+    'payments',
 ]
 
 MIDDLEWARE = [
