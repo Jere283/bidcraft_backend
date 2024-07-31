@@ -1,5 +1,8 @@
 from rest_framework import serializers
-from .models import Bids
+
+from products.serializers import GetAuctionSerializer
+from users.serializers import UserRegisterSerializer
+from .models import Bids, CompletedAuctions
 from products.models import Auction
 from users.models import User
 from django.utils import timezone
@@ -28,3 +31,11 @@ class CreateBidSerializer(serializers.ModelSerializer):
             bid_time=timezone.now()
         )
         return bid
+
+
+class CompletedAuctionSerializer(serializers.ModelSerializer):
+    buyer = UserRegisterSerializer(read_only=True)
+    auction = GetAuctionSerializer(read_only=True)
+    class Meta:
+        model = CompletedAuctions
+        fields = ['completed_auction_id', 'auction', 'buyer', 'highest_bid', 'is_paid', 'date_completed']

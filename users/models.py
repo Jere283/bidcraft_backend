@@ -131,7 +131,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class Otps(models.Model):
-    user = models.ForeignKey(User, models.DO_NOTHING, blank=True, null=True, unique=True)
+    user = models. OneToOneField(User, models.DO_NOTHING, blank=True, null=True)
     code = models.CharField(max_length=6, unique=True)
 
     class Meta:

@@ -1,9 +1,10 @@
 from django.db import IntegrityError
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.generics import GenericAPIView, get_object_or_404
+from rest_framework.generics import GenericAPIView, get_object_or_404, ListAPIView
 from products.models import Auction
-from .serializers import CreateBidSerializer
+from .models import CompletedAuctions
+from .serializers import CreateBidSerializer, CompletedAuctionSerializer
 from rest_framework.permissions import IsAuthenticated
 
 
@@ -36,3 +37,12 @@ class MakeABid(GenericAPIView):
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserCompletedAuctionsView(ListAPIView):
+    serializer_class = CompletedAuctionSerializer
+    permission_classes = [IsAuthenticated]  # Ensure the user is authenticated
+
+    def get_queryset(self):
+        user = self.request.user
+        return CompletedAuctions.objects.filter(buyer=user).order_by('completed_auction_id')
