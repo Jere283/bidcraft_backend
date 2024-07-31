@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
+import os
 from datetime import timedelta
 from pathlib import Path
 import environ
@@ -126,7 +127,9 @@ EMAIL_PORT = '2525'
 EMAIL_USE_TLS = True
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000'
+    'http://localhost:3000',
+    'https://bidcraft.netlify.app',
+    'https://bidcraft.netlify.app'
 ]
 
 # Password validation
@@ -169,3 +172,11 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+ALLOWED_HOSTS = ['localhost','web-production-d0bab.up.railway.app']
+
+CSRF_TRUSTED_ORIGINS = ['http://*','https://web-production-d0bab.up.railway.app']

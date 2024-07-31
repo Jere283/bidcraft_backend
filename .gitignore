@@ -5,4 +5,9 @@
 .idea
 .idea/misc.xml
 .idea/auction.iml
+bids/__pycache__/
+bids/migrations/__pycache__/
+products/migrations/__pycache__/
+users/migrations/__pycache__/
+staticfiles
 
