@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from products.serializers import GetAuctionSerializer
 from users.serializers import UserRegisterSerializer
-from .models import Bids, CompletedAuctions
+from .models import Bids, CompletedAuctions, SellerReviews
 from products.models import Auction
 from users.models import User
 from django.utils import timezone
@@ -39,3 +39,15 @@ class CompletedAuctionSerializer(serializers.ModelSerializer):
     class Meta:
         model = CompletedAuctions
         fields = ['completed_auction_id', 'auction', 'buyer', 'highest_bid', 'is_paid', 'date_completed']
+
+
+class SellerReviewsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SellerReviews
+        fields = ['review_id', 'buyer', 'seller', 'auction', 'rating', 'comment', 'review_date']
+        read_only_fields = ['review_id', 'buyer', 'review_date']
+
+    def validate_rating(self, value):
+        if value < 1 or value > 5:
+            raise serializers.ValidationError("El puntaje debe estar entre 1 y 5.")
+        return value
