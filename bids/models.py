@@ -26,3 +26,17 @@ class CompletedAuctions(models.Model):
     class Meta:
         managed = False
         db_table = 'completed_auctions'
+
+
+class SellerReviews(models.Model):
+    review_id = models.AutoField(primary_key=True)
+    buyer = models.ForeignKey(User, models.DO_NOTHING)
+    seller = models.ForeignKey(User, models.DO_NOTHING, related_name='sellerreviews_seller_set')
+    auction = models.ForeignKey(Auction, models.DO_NOTHING)
+    rating = models.IntegerField()
+    comment = models.TextField(blank=True, null=True)
+    review_date = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'seller_reviews'

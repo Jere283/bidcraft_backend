@@ -10,4 +10,7 @@ bids/migrations/__pycache__/
 products/migrations/__pycache__/
 users/migrations/__pycache__/
 staticfiles
-
+kyc/__pycache__/
+kyc/migrations/__pycache__/
+payments/__pycache__/
+payments/migrations/__pycache__/
