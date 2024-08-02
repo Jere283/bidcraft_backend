@@ -42,6 +42,10 @@ class CompletedAuctionSerializer(serializers.ModelSerializer):
 
 
 class SellerReviewsSerializer(serializers.ModelSerializer):
+    buyer = UserRegisterSerializer()
+    auction = GetAuctionSerializer()
+    seller = UserRegisterSerializer()
+
     class Meta:
         model = SellerReviews
         fields = ['review_id', 'buyer', 'seller', 'auction', 'rating', 'comment', 'review_date']
