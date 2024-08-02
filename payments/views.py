@@ -2,10 +2,13 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 import stripe
+
+from bids.models import CompletedAuctions
+from products.models import Auction
 from .serializers import PaymentSerializer
 
 class PaymentAPI(APIView):
-    def post(self, request):
+    def post(self, request, auction_id):
         serializer = PaymentSerializer(data=request.data)
         if serializer.is_valid():
             token = serializer.validated_data.get('token')
@@ -35,6 +38,9 @@ class PaymentAPI(APIView):
                 )
 
                 if payment_intent['status'] == 'succeeded':
+                    auction = CompletedAuctions.objects.get(auction=auction_id)
+                    auction.is_paid = True
+                    auction.save()
                     response = {
                         'message': "Card Payment Success",
                         'status': status.HTTP_200_OK,

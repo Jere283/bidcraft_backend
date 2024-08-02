@@ -229,3 +229,7 @@ class SellerReviewsBySellerView(APIView):
             'message': 'Reseñas obtenidas satisfactoriamente',
             'data': serializer.data
         }, status=status.HTTP_200_OK)
+
+
+class getAuctionView(GenericAPIView):
+    pass
