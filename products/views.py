@@ -382,7 +382,7 @@ class CreateAuctionTagView(GenericAPIView):
         else:
             return Response(tag_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# Vista para obtener todos los tags asociados a una subasta
+
 class TagsByAuctionView(GenericAPIView):
     permission_classes = [IsAuthenticated]
     def get(self, request, auction_id):

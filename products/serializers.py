@@ -83,7 +83,8 @@ class CreateFavoritesSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         user = self.context['request'].user
-        auction = self.context['auction_id']
+        auction = self.context['auction']
+
 
         if Favorites.objects.filter(user=user, auction=auction).exists():
             raise serializers.ValidationError("This favorite already exists.")
@@ -93,7 +94,7 @@ class CreateFavoritesSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         favorite =  Favorites.objects.create(
             user=self.context['request'].user,
-            auction=self.context['auction_id'],
+            auction=self.context['auction'],
             date_added=timezone.now()
         )
 

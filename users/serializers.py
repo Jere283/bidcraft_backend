@@ -20,6 +20,12 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
         if password != password_confirm:
             raise serializers.ValidationError("Las contaseñas no coinciden.")
+
+
+        id = User.objects.filter(id=attrs.get('id')).exists()
+        email = User.objects.filter(email=attrs.get('email')).exists()
+        username = User.objects.filter(username=attrs.get('username')).exists()
+
         return attrs
 
     def create(self, validated_data):

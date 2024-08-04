@@ -5,6 +5,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView, get_object_or_404, ListAPIView
 from rest_framework.views import APIView
+from django.core.cache import cache
 
 from products.models import Auction
 from .models import CompletedAuctions, SellerReviews
@@ -30,6 +31,7 @@ class MakeABid(GenericAPIView):
         try:
             if serializer.is_valid():
                 serializer.save()
+                cache.clear()
                 return Response({
                     'data': serializer.data,
                     'message': "La puja fue hecha"
@@ -229,3 +231,7 @@ class SellerReviewsBySellerView(APIView):
             'message': 'Reseñas obtenidas satisfactoriamente',
             'data': serializer.data
         }, status=status.HTTP_200_OK)
+
+
+class getAuctionView(GenericAPIView):
+    pass
