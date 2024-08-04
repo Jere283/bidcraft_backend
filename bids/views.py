@@ -186,6 +186,7 @@ class UpdateSellerReviewView(APIView):
 class DeleteSellerReviewView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = SellerReviewsSerializer
+
     def delete(self, request, auction_id, *args, **kwargs):
         user = request.user
 
@@ -205,7 +206,8 @@ class DeleteSellerReviewView(APIView):
         # Eliminar la reseña
         review.delete()
 
-        return Response({'message': 'Reseña eliminada satisfactoriamente'}, status=status.HTTP_204_NO_CONTENT)
+        # Enviar un mensaje de confirmación
+        return Response({'message': 'Reseña eliminada satisfactoriamente'}, status=status.HTTP_200_OK)
 
 
 class SellerReviewsBySellerView(APIView):
