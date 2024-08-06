@@ -37,5 +37,5 @@ urlpatterns = [
     path('favorites/user/', GetFavoriteView.as_view(), name='favorites_byUser_products'),
     path('favorites/check/<int:auction_id>/', CheckFavoriteView.as_view(), name='check-favorite'),
     path('favorites/delete/one/auction/<int:auction_id>/',DeleteFavoriteUserAuction.as_view(), name='check-del-favorite'),
-    #JER
+    #JERE
 ]

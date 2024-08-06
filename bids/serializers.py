@@ -42,7 +42,6 @@ class CompletedAuctionSerializer(serializers.ModelSerializer):
 
 
 class SellerReviewsSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = SellerReviews
         fields = ['review_id', 'buyer', 'seller', 'auction', 'rating', 'comment', 'review_date']
