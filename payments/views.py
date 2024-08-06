@@ -1,3 +1,5 @@
+from django.shortcuts import get_object_or_404
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -6,6 +8,7 @@ import stripe
 from bids.models import CompletedAuctions
 from products.models import Auction
 from .serializers import PaymentSerializer
+from products.serializers import GetAuctionSerializer
 
 class PaymentAPI(APIView):
     def post(self, request, auction_id):
@@ -77,3 +80,24 @@ class PaymentAPI(APIView):
                 {'errors': serializer.errors},
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+
+class BuyItNowClass(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = GetAuctionSerializer
+    def post(self, request, auction_id):
+        auction = get_object_or_404(Auction, pk=auction_id, is_active=True)
+
+
+        if auction.buy_it_now_price is None:
+            return Response({'error': 'La subasta no tiene precio de comprar ahora'}, status=400)
+
+        # Turn off the auction
+        auction.is_active = False
+        auction.winner = request.user
+        auction.save()
+
+        return Response({'message': 'La subasta fue comprada de manera exitosa'}, status=200)
+
+
+
