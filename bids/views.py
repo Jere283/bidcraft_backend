@@ -6,8 +6,10 @@ from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView, get_object_or_404, ListAPIView
 from rest_framework.views import APIView
 from django.core.cache import cache
+from tutorial.quickstart.serializers import UserSerializer
 
 from products.models import Auction
+from users.serializers import UserRegisterSerializer
 from .models import CompletedAuctions, SellerReviews
 from .serializers import CreateBidSerializer, CompletedAuctionSerializer, SellerReviewsSerializer
 from rest_framework.permissions import IsAuthenticated
@@ -112,7 +114,6 @@ class CreateSellerReviewView(GenericAPIView):
 
 class SellerReviewListView(GenericAPIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = SellerReviewsSerializer
 
     def get(self, request, *args, **kwargs):
         user = request.user
@@ -120,13 +121,34 @@ class SellerReviewListView(GenericAPIView):
         # Filtrar las reseñas realizadas por el usuario logueado
         reviews = SellerReviews.objects.filter(buyer=user)
 
-        # Serializar los datos
-        serializer = self.serializer_class(reviews, many=True)
+        # Si existen reseñas, serializarlas y añadir la información del comprador y del vendedor
+        if reviews.exists():
+            review_data_list = []
+            for review in reviews:
+                review_serializer = SellerReviewsSerializer(review)
+                review_data = review_serializer.data
 
-        return Response({
-            'message': 'Reseñas obtenidas satisfactoriamente',
-            'data': serializer.data
-        }, status=status.HTTP_200_OK)
+                # Obtener y serializar los datos del vendedor
+                seller = User.objects.get(id=review_data['seller'])
+                seller_serializer = UserRegisterSerializer(seller)
+                review_data['seller'] = seller_serializer.data
+
+                # Obtener y serializar los datos del comprador (usuario logueado)
+                buyer_serializer = UserRegisterSerializer(user)
+                review_data['buyer'] = buyer_serializer.data
+
+                review_data_list.append(review_data)
+
+            return Response({
+                'message': 'Reseñas obtenidas satisfactoriamente.',
+                'data': review_data_list
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                'message': 'No existen reseñas realizadas por el usuario.',
+                'buyer': UserRegisterSerializer(user).data
+            }, status=status.HTTP_200_OK)
+
 
 class SellerReviewByAuctionView(GenericAPIView):
     permission_classes = [IsAuthenticated]
@@ -212,7 +234,6 @@ class DeleteSellerReviewView(APIView):
 
 class SellerReviewsBySellerView(APIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = SellerReviewsSerializer
 
     def get(self, request, seller_id, *args, **kwargs):
         # Verificar si el vendedor existe
@@ -224,14 +245,69 @@ class SellerReviewsBySellerView(APIView):
         # Obtener todas las reseñas para este vendedor
         reviews = SellerReviews.objects.filter(seller=seller)
 
-        # Serializar los datos
-        serializer = self.serializer_class(reviews, many=True)
+        # Serializar los datos del vendedor
+        seller_serializer = UserRegisterSerializer(seller)
 
-        return Response({
-            'message': 'Reseñas obtenidas satisfactoriamente',
-            'data': serializer.data
-        }, status=status.HTTP_200_OK)
+        # Si existen reseñas, serializarlas y añadir la información del vendedor
+        if reviews.exists():
+            review_serializer = SellerReviewsSerializer(reviews, many=True)
+            review_data = review_serializer.data
+            for review in review_data:
+                review['seller'] = seller_serializer.data
+                # Serializar los datos del comprador
+                buyer = User.objects.get(id=review['buyer'])
+                buyer_serializer = UserRegisterSerializer(buyer)
+                review['buyer'] = buyer_serializer.data
+
+            return Response({
+                'message': 'Reseñas obtenidas satisfactoriamente.',
+                'data': review_data
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                'message': 'No existen reseñas para este vendedor.',
+                'seller': seller_serializer.data
+            }, status=status.HTTP_200_OK)
+
 
 
 class getAuctionView(GenericAPIView):
     pass
+
+
+class SellerReviewByAuctionView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, auction_id, *args, **kwargs):
+        # Verificar si la subasta existe
+        try:
+            auction = Auction.objects.get(auction_id=auction_id)
+        except Auction.DoesNotExist:
+            return Response({'error': 'La subasta no existe.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Obtener la reseña asociada con la subasta
+        try:
+            review = SellerReviews.objects.get(auction=auction)
+        except SellerReviews.DoesNotExist:
+            review = None
+
+        # Obtener la información del vendedor
+        seller = auction.seller
+
+        # Serializar los datos del vendedor
+        seller_serializer = UserRegisterSerializer(seller)
+
+        # Si existe una reseña, serializarla y añadir la información del vendedor
+        if review:
+            review_serializer = SellerReviewsSerializer(review)
+            review_data = review_serializer.data
+            review_data['seller'] = seller_serializer.data
+            return Response({
+                'message': 'Reseña obtenida.',
+                'data': review_data
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                'message': 'No existe una reseña para esta subasta.',
+                'seller': seller_serializer.data
+            }, status=status.HTTP_200_OK)
