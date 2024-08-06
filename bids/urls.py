@@ -14,4 +14,5 @@ urlpatterns = [
     path('reviews/auction/update/<int:auction_id>/', UpdateSellerReviewView.as_view(), name='update-seller-review'),
     path('reviews/auction/delete/<int:auction_id>/', DeleteSellerReviewView.as_view(), name='delete-seller-review'),
     path('reviews/seller/<str:seller_id>/', SellerReviewsBySellerView.as_view(), name='seller-reviews-by-seller'),
- ]
+    path('reviews/auction/<int:auction_id>/', SellerReviewByAuctionView.as_view(), name='review-by-auction'),
+]
