@@ -10,8 +10,8 @@ from tutorial.quickstart.serializers import UserSerializer
 
 from products.models import Auction
 from users.serializers import UserRegisterSerializer
-from .models import CompletedAuctions, SellerReviews
-from .serializers import CreateBidSerializer, CompletedAuctionSerializer, SellerReviewsSerializer
+from .models import CompletedAuctions, SellerReviews, Bids
+from .serializers import CreateBidSerializer, CompletedAuctionSerializer, SellerReviewsSerializer, GetBidSerializer
 from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
 from django.contrib.auth.models import User
@@ -270,11 +270,6 @@ class SellerReviewsBySellerView(APIView):
             }, status=status.HTTP_200_OK)
 
 
-
-class getAuctionView(GenericAPIView):
-    pass
-
-
 class SellerReviewByAuctionView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -311,3 +306,14 @@ class SellerReviewByAuctionView(APIView):
                 'message': 'No existe una reseña para esta subasta.',
                 'seller': seller_serializer.data
             }, status=status.HTTP_200_OK)
+
+class ShowBidsByAuctionID(GenericAPIView):
+    serializer_class = GetBidSerializer
+    permission_classes = [IsAuthenticated]
+    def get(self, request, auction_id):
+
+       bids = Bids.objects.filter(auction = auction_id)
+       serializer = self.serializer_class(bids, many=True)
+
+       return Response(data={'data':serializer.data}, status=status.HTTP_200_OK)
+

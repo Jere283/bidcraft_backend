@@ -55,22 +55,21 @@ class AuctionPagination(PageNumberPagination):
     page_size = 10
 
 class GetAuctionView(GenericAPIView):
+    permission_classes = [IsAuthenticated]
     serializer_class = GetAuctionSerializer
     pagination_class = AuctionPagination
 
     def get(self, request):
-        # Extract pagination parameters from the request
-        page_number = request.query_params.get('page', 1)  # Default to page 1 if not provided
-        cache_key = f'all_auctions_page_{page_number}'  # Cache key should be specific to the page
 
-        # Check cache
+        page_number = request.query_params.get('page', 1)
+        cache_key = f'all_auctions_page_{page_number}'
+
         cached_data = cache.get(cache_key)
 
         if cached_data:
             return Response(cached_data, status=status.HTTP_200_OK)
 
-        # Queryset and pagination
-        queryset = Auction.objects.filter(is_active=True).order_by('auction_id')
+        queryset = Auction.objects.filter(is_active=True).exclude(seller=request.user).order_by('auction_id')
         paginator = self.pagination_class()
         result_page = paginator.paginate_queryset(queryset, request)
         serializer = self.serializer_class(result_page, many=True)
