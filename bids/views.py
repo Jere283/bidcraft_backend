@@ -6,7 +6,6 @@ from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView, get_object_or_404, ListAPIView
 from rest_framework.views import APIView
 from django.core.cache import cache
-from tutorial.quickstart.serializers import UserSerializer
 
 from products.models import Auction
 from users.serializers import UserRegisterSerializer
