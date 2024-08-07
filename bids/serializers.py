@@ -9,7 +9,7 @@ from django.utils import timezone
 
 
 class GetBidSerializer(serializers.ModelSerializer):
-
+    bidder = UserRegisterSerializer(read_only=True)
     class Meta:
         model = Bids
         fields = ['bid_id', 'bidder', 'auction', 'bid_time', 'bid_amount']
