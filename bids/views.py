@@ -322,12 +322,18 @@ class ShowNotifications(GenericAPIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        notifications = Notifications.objects.filter(user = request.user)
+        is_read_param = request.query_params.get('is_read', None)
+
+        if is_read_param is not None:
+            is_read = is_read_param.lower() == 'true'
+            notifications = Notifications.objects.filter(user=request.user, is_read=is_read)
+        else:
+            notifications = Notifications.objects.filter(user=request.user)
+
+        if not notifications.exists():
+            return Response(data={'message': "No hay notificaciones"}, status=status.HTTP_200_OK)
+
         serializer = self.serializer_class(notifications, many=True)
-
-        if notifications == 0:
-            return Response("No hay notificaiones", status=status.HTTP_200_OK)
-
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

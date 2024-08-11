@@ -1,9 +1,9 @@
 from rest_framework import serializers
 
-from products.serializers import GetAuctionSerializer
+from products.serializers import GetAuctionSerializer, GetAuctionImageSerializer
 from users.serializers import UserRegisterSerializer
 from .models import Bids, CompletedAuctions, SellerReviews, Notifications
-from products.models import Auction
+from products.models import Auction, AuctionImage
 from users.models import User
 from django.utils import timezone
 
@@ -47,6 +47,18 @@ class CompletedAuctionSerializer(serializers.ModelSerializer):
         fields = ['completed_auction_id', 'auction', 'buyer', 'highest_bid', 'is_paid', 'date_completed']
 
 
+class NotificationAuctionSerializer(serializers.ModelSerializer):
+    images = GetAuctionImageSerializer(many=True, source='auctionimage_set')
+
+    class Meta:
+        model = Auction
+        fields = ('auction_id', 'name', 'description', 'highest_bid', 'images')
+
+    def get_images(self, obj):
+        images = AuctionImage.objects.filter(auction=obj)
+        return GetAuctionImageSerializer(images, many=True).data
+
+
 class SellerReviewsSerializer(serializers.ModelSerializer):
     class Meta:
         model = SellerReviews
@@ -60,8 +72,11 @@ class SellerReviewsSerializer(serializers.ModelSerializer):
 
 
 class GetNotificationsSerializer(serializers.ModelSerializer):
+
+    related_auction = NotificationAuctionSerializer(read_only=True)
     class Meta:
         model = Notifications
         fields = ['message', 'related_auction', 'is_read']
         read_only_fiedls = ['message', 'related_auction', 'is_read']
+
 
