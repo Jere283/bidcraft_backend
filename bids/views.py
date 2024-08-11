@@ -351,5 +351,5 @@ class MarkNotificationAsRead(GenericAPIView):
             notification.save()
             return Response(data={'data': "Has leido la notificaion"}, status=status.HTTP_200_OK)
         else:
-            return Response(data={'error': "La notiifcaion no te pertenece"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': "La notificacion no te pertenece"}, status=status.HTTP_400_BAD_REQUEST)
 
