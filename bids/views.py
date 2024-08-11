@@ -337,3 +337,19 @@ class ShowNotifications(GenericAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+class MarkNotificationAsRead(GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, notification_id):
+        try:
+            notification = Notifications.objects.get(notification_id=notification_id)
+        except Notifications.DoesNotExist:
+            return Response(data={'error': "La notificación no existe"}, status=status.HTTP_404_NOT_FOUND)
+
+        if notification.user == request.user:
+            notification.is_read = True
+            notification.save()
+            return Response(data={'data': "Has leido la notificaion"}, status=status.HTTP_200_OK)
+        else:
+            return Response(data={'error': "La notiifcaion no te pertenece"}, status=status.HTTP_400_BAD_REQUEST)
+

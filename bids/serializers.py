@@ -76,7 +76,7 @@ class GetNotificationsSerializer(serializers.ModelSerializer):
     related_auction = NotificationAuctionSerializer(read_only=True)
     class Meta:
         model = Notifications
-        fields = ['message', 'related_auction', 'is_read']
-        read_only_fiedls = ['message', 'related_auction', 'is_read']
+        fields = ['notification_id', 'message', 'related_auction', 'is_read']
+        read_only_fiedls = ['notification_id', 'message', 'related_auction', 'is_read']
 
 
