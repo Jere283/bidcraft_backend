@@ -9,8 +9,8 @@ from django.core.cache import cache
 
 from products.models import Auction
 from users.serializers import UserRegisterSerializer
-from .models import CompletedAuctions, SellerReviews, Bids
-from .serializers import CreateBidSerializer, CompletedAuctionSerializer, SellerReviewsSerializer, GetBidSerializer
+from .models import CompletedAuctions, SellerReviews, Bids, Notifications
+from .serializers import CreateBidSerializer, CompletedAuctionSerializer, SellerReviewsSerializer, GetBidSerializer, GetNotificationsSerializer
 from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
 from django.contrib.auth.models import User
@@ -315,4 +315,19 @@ class ShowBidsByAuctionID(GenericAPIView):
        serializer = self.serializer_class(bids, many=True)
 
        return Response(data={'data':serializer.data}, status=status.HTTP_200_OK)
+
+
+class ShowNotifications(GenericAPIView):
+    serializer_class = GetNotificationsSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        notifications = Notifications.objects.filter(user = request.user)
+        serializer = self.serializer_class(notifications, many=True)
+
+        if notifications == 0:
+            return Response("No hay notificaiones", status=status.HTTP_200_OK)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 

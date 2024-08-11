@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from products.serializers import GetAuctionSerializer
 from users.serializers import UserRegisterSerializer
-from .models import Bids, CompletedAuctions, SellerReviews
+from .models import Bids, CompletedAuctions, SellerReviews, Notifications
 from products.models import Auction
 from users.models import User
 from django.utils import timezone
@@ -57,3 +57,11 @@ class SellerReviewsSerializer(serializers.ModelSerializer):
         if value < 1 or value > 5:
             raise serializers.ValidationError("El puntaje debe estar entre 1 y 5.")
         return value
+
+
+class GetNotificationsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notifications
+        fields = ['message', 'related_auction', 'is_read']
+        read_only_fiedls = ['message', 'related_auction', 'is_read']
+

@@ -2,7 +2,7 @@ from django.urls import path, include
 
 from bids.views import MakeABid, UserCompletedAuctionsView, CreateSellerReviewView, SellerReviewListView, \
     SellerReviewByAuctionView, UpdateSellerReviewView, DeleteSellerReviewView, SellerReviewsBySellerView, \
-    ShowBidsByAuctionID
+    ShowBidsByAuctionID, ShowNotifications
 
 urlpatterns = [
     path('bids/create/one/<int:auction_id>/', MakeABid.as_view(), name='create_bid'),
@@ -17,4 +17,8 @@ urlpatterns = [
     path('reviews/auction/delete/<int:auction_id>/', DeleteSellerReviewView.as_view(), name='delete-seller-review'),
     path('reviews/seller/<str:seller_id>/', SellerReviewsBySellerView.as_view(), name='seller-reviews-by-seller'),
     path('reviews/auction/<int:auction_id>/', SellerReviewByAuctionView.as_view(), name='review-by-auction'),
+
+
+
+    path('notifications/user/', ShowNotifications.as_view(), name='get-notifications'),
 ]

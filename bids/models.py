@@ -40,3 +40,15 @@ class SellerReviews(models.Model):
     class Meta:
         managed = False
         db_table = 'seller_reviews'
+
+
+class Notifications(models.Model):
+    notification_id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, models.DO_NOTHING)
+    message = models.TextField()
+    related_auction = models.ForeignKey(Auction, models.DO_NOTHING, blank=True, null=True)
+    is_read = models.BooleanField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'notifications'
