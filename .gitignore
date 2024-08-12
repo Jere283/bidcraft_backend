@@ -14,3 +14,5 @@ kyc/__pycache__/
 kyc/migrations/__pycache__/
 payments/__pycache__/
 payments/migrations/__pycache__/
+bids/migrations/0002_completedauctions_notifications_purchases_and_more.py
+users/migrations/0002_alter_otps_user.py
