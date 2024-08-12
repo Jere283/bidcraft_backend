@@ -9,8 +9,9 @@ from django.core.cache import cache
 
 from products.models import Auction
 from users.serializers import UserRegisterSerializer
-from .models import CompletedAuctions, SellerReviews, Bids, Notifications
-from .serializers import CreateBidSerializer, CompletedAuctionSerializer, SellerReviewsSerializer, GetBidSerializer, GetNotificationsSerializer
+from .models import CompletedAuctions, SellerReviews, Bids, Notifications, Purchases
+from .serializers import CreateBidSerializer, CompletedAuctionSerializer, SellerReviewsSerializer, GetBidSerializer, \
+    GetNotificationsSerializer, PurchasesSerializer
 from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
 from django.contrib.auth.models import User
@@ -352,4 +353,42 @@ class MarkNotificationAsRead(GenericAPIView):
             return Response(data={'data': "Has leido la notificaion"}, status=status.HTTP_200_OK)
         else:
             return Response(data={'error': "La notificacion no te pertenece"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AllPurchasesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        purchases = Purchases.objects.all()
+        serializer = PurchasesSerializer(purchases, many=True)
+        return Response({
+            'message': 'Facturas obtenidas satisfactoriamente',
+            'data': serializer.data
+        }, status=status.HTTP_200_OK)
+
+class UserPurchasesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        purchases = Purchases.objects.filter(buyer=user)
+        serializer = PurchasesSerializer(purchases, many=True)
+        return Response({
+            'message': 'Facturas del usuario obtenidas satisfactoriamente',
+            'data': serializer.data
+        }, status=status.HTTP_200_OK)
+
+class PurchasesByAuctionView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, auction_id, *args, **kwargs):
+        purchases = Purchases.objects.filter(auction_id=auction_id)
+        if not purchases.exists():
+            return Response({'error': 'No existen facturas para esta subasta.'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = PurchasesSerializer(purchases, many=True)
+        return Response({
+            'message': 'Facturas obtenidas para la subasta.',
+            'data': serializer.data
+        }, status=status.HTTP_200_OK)
 

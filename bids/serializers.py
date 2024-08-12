@@ -1,8 +1,8 @@
 from rest_framework import serializers
 
-from products.serializers import GetAuctionSerializer, GetAuctionImageSerializer
+from products.serializers import GetAuctionSerializer, GetAuctionImageSerializer, AuctionSerializer
 from users.serializers import UserRegisterSerializer
-from .models import Bids, CompletedAuctions, SellerReviews, Notifications
+from .models import Bids, CompletedAuctions, SellerReviews, Notifications, Purchases
 from products.models import Auction, AuctionImage
 from users.models import User
 from django.utils import timezone
@@ -79,4 +79,27 @@ class GetNotificationsSerializer(serializers.ModelSerializer):
         fields = ['notification_id', 'message', 'related_auction', 'is_read']
         read_only_fiedls = ['notification_id', 'message', 'related_auction', 'is_read']
 
+
+class PurchasesSerializer(serializers.ModelSerializer):
+    seller = UserRegisterSerializer()
+    buyer = UserRegisterSerializer()
+    auction = GetAuctionSerializer()
+
+    class Meta:
+        model = Purchases
+        fields = ['purchase_id', 'seller', 'buyer', 'auction', 'purchase_date', 'total_amount']
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        auction_data = representation['auction']
+
+        # Elimina los campos innecesarios del detalle de la subasta
+        auction_fields_to_remove = ['seller', 'starting_price', 'buy_it_now_price',
+                                    'date_listed', 'is_active', 'highest_bid',
+                                    'start_time', 'end_time', 'winner']
+        for field in auction_fields_to_remove:
+            auction_data.pop(field, None)
+
+        representation['auction'] = auction_data
+        return representation
 

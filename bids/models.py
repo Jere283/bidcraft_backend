@@ -52,3 +52,16 @@ class Notifications(models.Model):
     class Meta:
         managed = False
         db_table = 'notifications'
+
+
+class Purchases(models.Model):
+    purchase_id = models.AutoField(primary_key=True)
+    seller = models.ForeignKey(User, models.DO_NOTHING)
+    buyer = models.ForeignKey(User, models.DO_NOTHING, related_name='purchases_buyer_set')
+    auction = models.ForeignKey(Auction, models.DO_NOTHING)
+    purchase_date = models.DateTimeField(blank=True, null=True)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        managed = False
+        db_table = 'purchases'
